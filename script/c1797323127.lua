@@ -47,7 +47,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 end
 -- sp summon
 function s.cfilter(c,tp)
-	return c:IsFaceup() and c:IsSetCard(0x821) and c:IsSummonPlayer(tp) --and c:IsCode(TRAP CARD IDS)
+	return c:IsFaceup() and c:IsSetCard(0x821) and c:IsSummonPlayer(tp) and c:IsType(TYPE_TRAPMONSTER)
 end
 function s.spcon1(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp)
