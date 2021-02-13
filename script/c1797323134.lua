@@ -65,8 +65,12 @@ end
 function s.thfilter(c)
 	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x821) and c:IsAbleToDeckAsCost()
 end
+function s.fieldcheck(c)
+	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x821) and c:IsFaceUp()
+end
 function s.playcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return (e:GetHandler():IsAbleToDeckAsCost()) and (Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler())) end
+	if chk==0 then return (e:GetHandler():IsAbleToDeckAsCost()) and (Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler())) 
+	and (Duel.IsExistingMatchingCard(s.fieldcheck,tp,LOCATION_ONFIELD,0,1,e:GetHandler()))  end
 	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_GRAVE,0,1,1,e:GetHandler())
 	Duel.SendtoDeck(g,nil,2,REASON_COST)
 	Duel.SendtoDeck(e:GetHandler(),nil,2,REASON_COST)
