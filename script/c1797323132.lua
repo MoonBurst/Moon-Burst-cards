@@ -46,7 +46,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummonComplete()
 	if  Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0 and 
 	Duel.IsExistingMatchingCard(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) and
-	Duel.SelectYesNo(tp,aux.Stringid(4821,6)) then
+	Duel.SelectYesNo(tp,aux.Stringid(4821,9)) then
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectMatchingCard(tp,s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 	if #g>0 then
