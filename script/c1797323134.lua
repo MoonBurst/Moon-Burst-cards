@@ -70,7 +70,7 @@ function s.fieldcheck(c)
 end
 function s.playcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return (e:GetHandler():IsAbleToDeckAsCost()) and (Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler())) 
-	and (Duel.IsExistingMatchingCard(s.fieldcheck,tp,LOCATION_ONFIELD,0,1,e:GetHandler()))  end
+	and (Duel.IsExistingMatchingCard(s.fieldcheck,tp,LOCATION_MZONE,0,1,e:GetHandler()))  end
 	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_GRAVE,0,1,1,e:GetHandler())
 	Duel.SendtoDeck(g,nil,2,REASON_COST)
 	Duel.SendtoDeck(e:GetHandler(),nil,2,REASON_COST)
