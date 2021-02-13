@@ -41,7 +41,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
 		or not Duel.IsPlayerCanSpecialSummonMonster(tp,id,0x821,0x11,750,1650,4,RACE_MACHINE,ATTRIBUTE_WATER) then return end
 	c:AddMonsterAttribute(TYPE_NORMAL+TYPE_TRAP)
-	Duel.SpecialSummonStep(c,1,tp,tp,true,false,POS_FACEUP)
+	Duel.SpecialSummonStep(c,1,tp,tp,true,false,POS_FACEUP_DEFENSE)
 	c:AddMonsterAttributeComplete()
 	Duel.SpecialSummonComplete()
 	if  Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0 and 
@@ -62,7 +62,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0
 end
 function s.thfilter(c)
-	return c:IsType(TYPE_TRAP) and c:IsSetCode(0x821) and c:IsAbleToDeckAsCost()
+	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x821) and c:IsAbleToDeckAsCost()
 end
 function s.playcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return (e:GetHandler():IsAbleToDeckAsCost()) and (Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler())) end
