@@ -72,20 +72,19 @@ function s.playcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoDeck(g,nil,2,REASON_COST)
 	Duel.SendtoDeck(e:GetHandler(),nil,2,REASON_COST)
 end
-
+function s.searchfilter(c)
+    return c:IsSetCard(0x861) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
+end
 function s.target2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) and Duel.IsPlayerCanDiscardDeck(tp,1)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.searchfilter,tp,LOCATION_DECK,0,1,nil) and Duel.IsPlayerCanDiscardDeck(tp,1)
         and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil) end
     Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 end
-function s.tgfilter(c)
-    return c:IsSetCard(0x861) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
-end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
+		local g=Duel.SelectMatchingCard(tp,s.searchfilter,tp,LOCATION_DECK,0,1,1,nil)
 		if #g>0 then
 		if	 Duel.SendtoGrave(g,REASON_EFFECT)~=0 then
 		Duel.Draw(tp,1,REASON_EFFECT)
