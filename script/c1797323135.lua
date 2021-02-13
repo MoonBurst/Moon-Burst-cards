@@ -31,9 +31,6 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 		and Duel.IsPlayerCanSpecialSummonMonster(tp,id,0x821,0x11,1550,1550,4,RACE_MACHINE,ATTRIBUTE_FIRE) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
-function s.indtg(e,c)
-	return c:IsSetCard(0x821) and c~=e:GetHandler() and c:IsType(TYPE_MONSTER)
-end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(aux.disfilter1,tp,0,LOCATION_MZONE,nil)
@@ -44,7 +41,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummonStep(c,1,tp,tp,true,false,POS_FACEUP_DEFENSE)
 	c:AddMonsterAttributeComplete()
 	Duel.SpecialSummonComplete()
-	if  Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0 and #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0 and #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 	Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 			local sg=g:Select(tp,1,1,nil)
