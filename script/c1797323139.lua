@@ -11,10 +11,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	--set
     local e2=Effect.CreateEffect(c)
-    e2:SetType(EFFECT_TYPE_ACTIVATE)
+    e2:SetType(EFFECT_TYPE_IGNITION)
     e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-    e2:SetCode(EVENT_FREE_CHAIN)
-    e2:SetHintTiming(TIMING_BATTLE_PHASE,TIMINGS_CHECK_MONSTER+TIMING_BATTLE_PHASE)
+ --   e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetRange(LOCATION_FZONE)
 	e2:SetCondition(s.spcon)
     e2:SetTarget(s.target)
     e2:SetOperation(s.activate2)
@@ -70,7 +70,7 @@ function s.filter(c)
     return c:IsFaceup() and c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-    if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and s.filter2(chkc) end
+    if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and s.filter(chkc) end
     if chk==0 then return Duel.IsExistingTarget(s.filter,tp,0,LOCATION_ONFIELD,1,nil) end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
     local g=Duel.SelectTarget(tp,s.filter,tp,0,LOCATION_ONFIELD,1,1,nil)
@@ -79,12 +79,11 @@ end
 function s.activate2(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
     if tc and tc:IsRelateToEffect(e) and tc:IsLocation(LOCATION_ONFIELD) and tc:IsFaceup() then
-        Duel.SSet(tp,tc)
-		Duel.BreakEffect()
+		Duel.ChangePosition(tc,POS_FACEDOWN)
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CANNOT_TRIGGER)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		e1:SetReset(RESET_EVENT+RESET_PHASE+PHASE_END,3)
 		tc:RegisterEffect(e1)
     end
 end
