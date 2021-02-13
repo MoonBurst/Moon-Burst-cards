@@ -66,7 +66,7 @@ function s.thfilter(c)
 	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x821) and c:IsAbleToDeckAsCost()
 end
 function s.fieldcheck(c)
-	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x821) and c:IsFaceUp()
+	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x821) and c:IsFaceup()
 end
 function s.playcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return (e:GetHandler():IsAbleToDeckAsCost()) and (Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler())) 
