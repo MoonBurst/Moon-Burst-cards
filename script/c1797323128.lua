@@ -33,9 +33,9 @@ end
 function s.cfilter(c,tp)
 	return c:IsFaceup() and c:IsSetCard(0x821) and c:IsSummonPlayer(tp)
 end
+
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	local ec=eg:GetFirst()
-	return ep==tp and  eg:IsExists(s.cfilter,1,nil,tp)
+	return  eg:IsExists(s.cfilter,1,nil,tp)
 	and Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
