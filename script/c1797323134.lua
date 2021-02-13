@@ -59,14 +59,14 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 --send cards to grave
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and
+	return 
 	Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0
 end
 function s.thfilter(c)
 	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x821) and c:IsAbleToDeckAsCost()
 end
 function s.fieldcheck(c)
-	return c:IsType(TYPE_TRAP+TYPE_MONSTER) and c:IsSetCard(0x821) and c:IsFaceup()
+	return (c:IsType(TYPE_MONSTER) and c:IsSetCard(0x821) and c:IsFaceup()) or (c:IsType(TYPE_TRAP+TYPE_CONTINUOUS) and c:IsSetCard(0x821) and c:IsFaceup())
 end
 function s.playcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return (e:GetHandler():IsAbleToDeckAsCost()) and (Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler())) 
@@ -76,7 +76,7 @@ function s.playcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoDeck(e:GetHandler(),nil,2,REASON_COST)
 end
 function s.tgfilter(c)
-	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x821) and c:IsAbleToDeckAsCost() and not c:IsCode(id)
+	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x821) and c:IsAbleToGrave() and not c:IsCode(id)
 end
 function s.target2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end
