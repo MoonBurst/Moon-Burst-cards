@@ -14,7 +14,7 @@ function s.initial_effect(c)
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
     return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0
-	and Duel.GetLocationCount(tp,LOCATION_SZONE)<2
+	and Duel.GetLocationCount(tp,LOCATION_SZONE)>1
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,e:GetHandler()) end
@@ -22,7 +22,7 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 --Check for "Mekk" traps
 function s.setfilter(c)
-	return c:GetType()==TYPE_TRAP and c:IsSSetable() and c:IsSetCard(0x821)
+	return c:IsType(TYPE_TRAP) and c:IsSSetable() and c:IsSetCard(0x821)
 end
 	--The 2 traps have different names from each other
 function s.setcheck(sg,e,tp,mg)
