@@ -90,15 +90,6 @@ function s.tgfilter2(c)
     return c:IsSetCard(0x861) and c:IsType(TYPE_SPELL) and c:IsAbleToHand()
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local g=Duel.SelectMatchingCard(tp,s.tgfilter2,tp,LOCATION_DECK,0,1,1,nil)
-		if #g>0 then
-		if	 Duel.SendtoGrave(g,REASON_EFFECT)~=0 then
-		Duel.Draw(tp,1,REASON_EFFECT)
-		end
-	end
-end
-function s.activate(e,tp,eg,ep,ev,re,r,rp)
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
     local g=Duel.SelectMatchingCard(tp,s.tgfilter2,tp,LOCATION_DECK,0,1,1,nil)
     if #g>0 then
