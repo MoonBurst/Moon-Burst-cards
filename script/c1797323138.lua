@@ -20,8 +20,7 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
     return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
-    if ep==tp or not Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0 then return false end
-    return re:IsHasType(EFFECT_TYPE_ACTIVATE) and Duel.IsChainNegatable(ev)
+    return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)%2==0 and re:IsHasType(EFFECT_TYPE_ACTIVATE) and Duel.IsChainNegatable(ev)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.CheckReleaseGroupCost(tp,nil,1,false,nil,nil) end
