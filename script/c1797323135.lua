@@ -59,6 +59,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			tc:RegisterEffect(e2)
 	end
 end
+
 --send cards to grave
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and
@@ -84,7 +85,7 @@ function s.target2(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 end
 function s.tgfilter2(c)
-    return c:IsSetCard(0x861) and c:IsType(TYPE_SPELL) and c:IsAbleToHand()
+    return c:IsSetCard(0x821) and c:IsType(TYPE_SPELL) and c:IsAbleToHand()
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
