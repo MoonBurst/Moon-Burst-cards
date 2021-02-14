@@ -55,7 +55,7 @@ end
 
 --Summon Filters
 function s.matfilter(c,e,tp)
-	return (c:IsSetCard(0xc54) and c:IsAttribute(ATTRIBUTE_WATE)) or s.filter(c)
+	return (c:IsSetCard(0xc54) and c:IsAttribute(ATTRIBUTE_WATER)) or s.filter(c)
 end
 
 function s.lcheck(g,lc,sumtype,tp)
