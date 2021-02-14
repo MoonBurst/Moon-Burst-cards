@@ -42,57 +42,39 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 
---Filters
-function s.matfilter(c)
-	return c:IsSetCard(0xc54) and (c:IsAttribute(ATTRIBUTE_WIND) or (c:IsType(TYPE_SPELL) and c:IsType(TYPE_CONTINUOUS)))
+function s.eftg(e,c)
+	return s.filter(c)
 end
+
+--Filters
+function s.matfilter(c,e,tp)
+	return (c:IsSetCard(0xc54) and c:IsAttribute(ATTRIBUTE_WIND)) or s.filter(c)
+end
+
 function s.lcheck(g,lc,sumtype,tp)
 	return g:IsExists(Card.IsLocation,1,nil,LOCATION_MZONE)
 end
-
---Use Material in S/T (1)
-s.curgroup=nil
-function s.extracon(c,e,tp,sg,mg,lc,og,chk)
-	return not s.curgroup or #(sg&s.curgroup)<3
-end
-function s.extraval(chk,summon_type,e,...)
-	if chk==0 then
-		local c=e:GetHandler()
-		local ex=Effect.CreateEffect(c)
-		ex:SetType(EFFECT_TYPE_SINGLE)
-		ex:SetCode(EFFECT_ADD_TYPE)
-		ex:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		ex:SetReset(RESET_EVENT+RESETS_STANDARD)
-		ex:SetOperation(s.chngcon)
-		ex:SetValue(TYPE_MONSTER)
-		c:RegisterEffect(ex)
-		local ex2=Effect.CreateEffect(c)
-		ex2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
-		ex2:SetRange(LOCATION_EXTRA)
-		ex2:SetTargetRange(LOCATION_SZONE,0)
-		ex2:SetTarget(s.eftg)
-		ex2:SetLabelObject(ex)
-		c:RegisterEffect(ex2)
-		local tp,sc=...
-		if summon_type~=SUMMON_TYPE_LINK or sc~=e:GetHandler() then
-			return Group.CreateGroup()
-		else
-			s.curgroup=Duel.GetMatchingGroup(s.matfilter,tp,LOCATION_SZONE,0,nil)
-			s.curgroup:KeepAlive()
-			return s.curgroup
-		end
-	elseif chk==2 then
-		if s.curgroup then
-			s.curgroup:DeleteGroup()
-		end
-		s.curgroup=nil
+function s.chngcon(c)
+	return function(scard,sumtype,tp)
+		return (sumtype&SUMMON_TYPE_LINK|MATERIAL_LINK)==SUMMON_TYPE_LINK|MATERIAL_LINK and scard==c
 	end
 end
-function s.eftg(e,c)
-	return c:IsSetCard(0xc54) and c:IsType(TYPE_SPELL) and c:IsType(TYPE_CONTINUOUS)
+
+--Use as Material in S/T (0)
+function s.filter(c)
+	return c:IsSetCard(0xc54) and c:IsType(TYPE_SPELL+TYPE_CONTINUOUS)
 end
-function s.chngcon(scard,sumtype,tp)
-    return (sumtype&SUMMON_TYPE_LINK|MATERIAL_LINK)==SUMMON_TYPE_LINK|MATERIAL_LINK
+
+function s.extraval(chk,summon_type,e,...)
+    local c=e:GetHandler()
+    if chk==0 then
+        local tp,sc=...
+        if summon_type~=SUMMON_TYPE_LINK or sc~=e:GetHandler() then
+            return Group.CreateGroup()
+        else
+            return Duel.GetMatchingGroup(s.eftg,tp,0,LOCATION_SZONE,nil)
+        end
+    end
 end
 
 --Send Opponent's Monster to GY (1)

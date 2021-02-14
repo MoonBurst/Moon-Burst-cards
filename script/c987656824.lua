@@ -46,56 +46,39 @@ function s.initial_effect(c)
 	e1:SetLabelObject(e2)
 end
 
-function s.extrafilter(c,tp)
-    return c:IsSetCard(0xc54) and c:IsLocation(LOCATION_MZONE) and c:IsControler(tp)
+function s.eftg(e,c)
+	return s.filter(c)
 end
 
+--Filters
 function s.matfilter(c,e,tp)
-    return c:IsSetCard(0xc54)
+	return c:IsType(TYPE_MONSTER) or s.filter(c)
 end
 
 function s.lcheck(g,lc,sumtype,tp)
-    return g:IsExists(s.matfilter2,1,nil,lc,sumtype,tp)
+	return g:IsExists(Card.IsLocation,1,nil,LOCATION_MZONE)
 end
-
-function s.matfilter2(c,e,tp)
-    return c:IsSetCard(0xc54)
-end
-
-function s.atfilter(c,tc)
-    return c:IsSetCard(0xc54) and c:IsType(TYPE_MONSTER)
+function s.chngcon(c)
+	return function(scard,sumtype,tp)
+		return (sumtype&SUMMON_TYPE_LINK|MATERIAL_LINK)==SUMMON_TYPE_LINK|MATERIAL_LINK and scard==c
+	end
 end
 
 --Use as Material in S/T (0)
-function s.extracon(c,e,tp,sg,mg,lc,og,chk)
-    return (sg+mg):FilterCount(s.extrafilter,nil,tp)>0
+function s.filter(c)
+	return c:IsSetCard(0xc54) and c:IsType(TYPE_SPELL+TYPE_CONTINUOUS)
 end
 
 function s.extraval(chk,summon_type,e,...)
     local c=e:GetHandler()
     if chk==0 then
         local tp,sc=...
-        if not summon_type==SUMMON_TYPE_LINK or not sc:IsCode(id) then
+        if summon_type~=SUMMON_TYPE_LINK or sc~=e:GetHandler() then
             return Group.CreateGroup()
         else
-            return Group.FromCards(c)
-        end
-    elseif chk==1 then
-        local sg,sc,tp=...
-        if summon_type&SUMMON_TYPE_LINK == SUMMON_TYPE_LINK and #sg>0 then
-            for tc in aux.Next(sg) do
-                if tc:GetFlagEffect(id)==0 then
-                Duel.Hint(HINT_CARD,tp,id)
-                tc:RegisterFlagEffect(id,RESET_EVENT+EVENT_BE_MATERIAL,0,1)
-                end
-            end
+            return Duel.GetMatchingGroup(s.eftg,tp,0,LOCATION_SZONE,nil)
         end
     end
-end
-
-function s.eftg(e,c)
-    local g=e:GetHandler()
-    return c:IsSetCard(0xc54) and c:IsType(TYPE_SPELL+TYPE_CONTINUOUS) and c:IsOriginalType(TYPE_MONSTER)
 end
 
 --Attribute Change (2)
