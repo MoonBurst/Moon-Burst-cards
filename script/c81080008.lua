@@ -33,9 +33,12 @@ function cid.initial_effect(c)
 	e3:SetOperation(cid.thop)
 	c:RegisterEffect(e3)
 end
-function cid.matfilter(c)
-	return c:IsLinkSetCard(0x8108) and not c:IsLinkCode(id)
+function cid.matfilter(c,lc,sumtype,tp)
+    return c:IsSetCard(0x8108,lc,sumtype,tp) and not c:IsSummonCode(lc,sumtype,tp,id)
 end
+--function cid.matfilter(c)
+--	return c:IsLinkSetCard(0x8108) and not c:IsLinkCode(id)
+--end
 --Spawn Token
 function cid.condition(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
