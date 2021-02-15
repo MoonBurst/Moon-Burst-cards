@@ -1,30 +1,12 @@
 --Thaumic Tsunami
 --Scripted by "Nekro"
 local s,id=GetID()
+Duel.LoadScript("c987656819.lua")
 function s.initial_effect(c)
     --Link Summon
     c:EnableReviveLimit()
     Link.AddProcedure(c,s.matfilter,2,3,s.lcheck)
-	--Use as Material in S/T (0)
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_FIELD)
-	e0:SetRange(LOCATION_EXTRA)
-	e0:SetCode(EFFECT_EXTRA_MATERIAL)
-	e0:SetProperty(EFFECT_FLAG_PLAYER_TARGET|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_SET_AVAILABLE)
-	e0:SetTargetRange(1,1)
-	e0:SetOperation(aux.TRUE)
-	e0:SetValue(s.extraval)
-	c:RegisterEffect(e0)
-	local e1=Effect.CreateEffect(c)
-    e1:SetType(EFFECT_TYPE_FIELD)
-    e1:SetCode(EFFECT_ADD_TYPE)
-	e1:SetRange(LOCATION_EXTRA)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_SET_AVAILABLE)
-	e1:SetTargetRange(LOCATION_SZONE,0)
-    e1:SetOperation(s.chngcon(c))
-	e1:SetTarget(aux.TargetBoolFunction(s.filter))
-    e1:SetValue(TYPE_MONSTER)
-    c:RegisterEffect(e1)
+	thaux.ThaumLinkProc(c)
 	--Shuffle S/T into Deck (1)
 	local e3=Effect.CreateEffect(c)
 	e3:SetCategory(CATEGORY_TODECK)
@@ -49,39 +31,13 @@ function s.initial_effect(c)
 	e4:SetOperation(s.dsop)
 	c:RegisterEffect(e4)
 end
-function s.eftg(e,c)
-	return s.filter(c)
-end
-
 --Summon Filters
 function s.matfilter(c,e,tp)
-	return (c:IsSetCard(0xc54) and c:IsAttribute(ATTRIBUTE_WATER)) or s.filter(c)
+	return (c:IsSetCard(0xc54) and c:IsAttribute(ATTRIBUTE_WATER)) or thaux.sfilter(c)
 end
 
 function s.lcheck(g,lc,sumtype,tp)
 	return g:IsExists(Card.IsLocation,1,nil,LOCATION_MZONE)
-end
-function s.chngcon(c)
-	return function(scard,sumtype,tp)
-		return (sumtype&SUMMON_TYPE_LINK|MATERIAL_LINK)==SUMMON_TYPE_LINK|MATERIAL_LINK and scard==c
-	end
-end
-
---Use as Material in S/T (0)
-function s.filter(c)
-	return c:IsSetCard(0xc54) and c:IsType(TYPE_SPELL+TYPE_CONTINUOUS)
-end
-
-function s.extraval(chk,summon_type,e,...)
-    local c=e:GetHandler()
-    if chk==0 then
-        local tp,sc=...
-        if summon_type~=SUMMON_TYPE_LINK or sc~=e:GetHandler() then
-            return Group.CreateGroup()
-        else
-            return Duel.GetMatchingGroup(s.eftg,tp,0,LOCATION_SZONE,nil)
-        end
-    end
 end
 
 --Shuffle S/T into Deck (1)

@@ -1,30 +1,26 @@
 --Thaumic Firestorm
 --Scripted by "Nekro"
 local s,id=GetID()
+Thauxiliary={}
+thaux=Thauxiliary
+function thaux.ThaumLinkProc(c)
+	--Use Materials in S/T (1)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetRange(LOCATION_EXTRA)
+	e1:SetCode(EFFECT_EXTRA_MATERIAL)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_SET_AVAILABLE)
+	e1:SetTargetRange(1,1)
+	e1:SetOperation(aux.TRUE)
+	e1:SetValue(thaux.extraval)
+	c:RegisterEffect(e1)
+end
+
 function s.initial_effect(c)
     --Link Summon
     c:EnableReviveLimit()
     Link.AddProcedure(c,s.matfilter,2,3,s.lcheck)
-	--Use as Material in S/T (0)
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_FIELD)
-	e0:SetRange(LOCATION_EXTRA)
-	e0:SetCode(EFFECT_EXTRA_MATERIAL)
-	e0:SetProperty(EFFECT_FLAG_PLAYER_TARGET|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_SET_AVAILABLE)
-	e0:SetTargetRange(1,1)
-	e0:SetOperation(aux.TRUE)
-	e0:SetValue(s.extraval)
-	c:RegisterEffect(e0)
-	local e1=Effect.CreateEffect(c)
-    e1:SetType(EFFECT_TYPE_FIELD)
-    e1:SetCode(EFFECT_ADD_TYPE)
-	e1:SetRange(LOCATION_EXTRA)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_SET_AVAILABLE)
-	e1:SetTargetRange(LOCATION_SZONE,0)
-    e1:SetOperation(s.chngcon(c))
-	e1:SetTarget(aux.TargetBoolFunction(s.filter))
-    e1:SetValue(TYPE_MONSTER)
-    c:RegisterEffect(e1)
+	thaux.ThaumLinkProc(c)
 	--Send Monster to GY (2)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
@@ -57,39 +53,58 @@ function s.initial_effect(c)
 	e4:SetValue(s.atkval)
 	c:RegisterEffect(e4)
 end
-function s.eftg(e,c)
-	return s.filter(c)
-end
 
 --Summon Filters
-function s.matfilter(c,e,tp)
-	return (c:IsSetCard(0xc54) and c:IsAttribute(ATTRIBUTE_FIRE)) or s.filter(c)
+function s.matfilter(c)
+	return (c:IsSetCard(0xc54) and c:IsAttribute(ATTRIBUTE_FIRE)) or thaux.sfilter(c)
 end
-
 function s.lcheck(g,lc,sumtype,tp)
 	return g:IsExists(Card.IsLocation,1,nil,LOCATION_MZONE)
 end
-function s.chngcon(c)
-	return function(scard,sumtype,tp)
-		return (sumtype&SUMMON_TYPE_LINK|MATERIAL_LINK)==SUMMON_TYPE_LINK|MATERIAL_LINK and scard==c
+function thaux.sfilter(c)
+	return c:IsSetCard(0xc54) and c:IsType(TYPE_CONTINUOUS) and c:IsType(TYPE_SPELL)
+end
+
+--Use Material in S/T (1)
+function thaux.extraval(chk,summon_type,e,...)
+	if chk==0 then
+		local c=e:GetHandler()
+		local ex=Effect.CreateEffect(c)
+		ex:SetType(EFFECT_TYPE_SINGLE)
+		ex:SetCode(EFFECT_ADD_TYPE)
+		ex:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		ex:SetReset(RESET_EVENT+RESETS_STANDARD)
+		ex:SetOperation(thaux.chngcon)
+		ex:SetValue(TYPE_MONSTER)
+		c:RegisterEffect(ex)
+		local ex2=Effect.CreateEffect(c)
+		ex2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
+		ex2:SetRange(LOCATION_EXTRA)
+		ex2:SetTargetRange(LOCATION_SZONE,0)
+		ex2:SetTarget(thaux.eftg)
+		ex2:SetLabelObject(ex)
+		c:RegisterEffect(ex2)
+		local tp,sc=...
+		thaux.curgroup=nil
+		if summon_type~=SUMMON_TYPE_LINK or sc~=e:GetHandler() then
+			return Group.CreateGroup()
+		else
+			thaux.curgroup=Duel.GetMatchingGroup(thaux.sfilter,tp,LOCATION_SZONE,0,nil)
+			thaux.curgroup:KeepAlive()
+			return thaux.curgroup
+		end
+	elseif chk==2 then
+		if thaux.curgroup then
+			thaux.curgroup:DeleteGroup()
+		end
+		thaux.curgroup=nil
 	end
 end
-
---Use as Material in S/T (0)
-function s.filter(c)
-	return c:IsSetCard(0xc54) and c:IsType(TYPE_SPELL+TYPE_CONTINUOUS)
+function thaux.eftg(e,c)
+	return thaux.sfilter(c)
 end
-
-function s.extraval(chk,summon_type,e,...)
-    local c=e:GetHandler()
-    if chk==0 then
-        local tp,sc=...
-        if summon_type~=SUMMON_TYPE_LINK or sc~=e:GetHandler() then
-            return Group.CreateGroup()
-        else
-            return Duel.GetMatchingGroup(s.eftg,tp,0,LOCATION_SZONE,nil)
-        end
-    end
+function thaux.chngcon(scard,sumtype,tp)
+    return (sumtype&SUMMON_TYPE_LINK|MATERIAL_LINK)==SUMMON_TYPE_LINK|MATERIAL_LINK
 end
 
 --Send Opponent's Monster to GY (1)
