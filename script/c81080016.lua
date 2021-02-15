@@ -10,7 +10,7 @@ local id,cid=getID()
 function cid.initial_effect(c)
 	--link summon
 	c:EnableReviveLimit()
-	aux.AddLinkProcedure(c,cid.lfilter,2,2)
+	Link.AddProcedure(c,cid.lfilter,2,2)
 	--recycle banished cards
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))

@@ -82,7 +82,7 @@ function cid.rmop(e,tp,eg,ep,ev,re,r,rp)
 	if tc1:IsFaceup() and tc1:IsRelateToEffect(e) then
 		local ct1=tc1:GetCounter(0x81081)
 		if tc2:IsFaceup() and tc2:IsRelateToEffect(e) then
-			tc1:RemoveCounter(tp,0x81081,ct1,REASON_EFECT)
+			tc1:RemoveCounter(tp,0x81081,ct1,REASON_EFFECT)
 			tc2:AddCounter(0x81081,ct1)
 		end
 	end

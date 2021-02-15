@@ -10,7 +10,7 @@ local id,cid=getID()
 function cid.initial_effect(c)
 	--link summon
 	c:EnableReviveLimit()
-	aux.AddLinkProcedure(c,cid.lfilter,2,2)
+	Link.AddProcedure(c,cid.lfilter,2,2)
 	--Material check
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)

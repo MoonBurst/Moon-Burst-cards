@@ -9,7 +9,7 @@ end
 local id,cid=getID()
 function cid.initial_effect(c)
 	--link summon
-	aux.AddLinkProcedure(c,cid.matfilter,1,1)
+	Link.AddProcedure(c,cid.matfilter,1,1)
 	c:EnableReviveLimit()
 	--Search
 	local e1=Effect.CreateEffect(c)
