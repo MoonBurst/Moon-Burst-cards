@@ -115,6 +115,6 @@ function cid.acop(e,tp,eg,ep,ev,re,r,rp)
 local c=e:GetHandler()
 	e:GetHandler() c:AddCounter(0xc,1)
 	if c:GetCounter(0xc)==5 then
-		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+id,re,0,0,p,0)
+		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+id,re,0,0,0,0)
 	end
 end
