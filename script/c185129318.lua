@@ -28,6 +28,7 @@ function s.initial_effect(c)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e4:SetRange(LOCATION_MZONE)
+	e4:SetCountLimit(1)
 	e4:SetTarget(s.target)
 	e4:SetOperation(s.activate)
 	c:RegisterEffect(e4)
@@ -87,7 +88,7 @@ function s.activate(e)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
 	local tc2=g:GetFirst()
 	if tc2==tc1 then tc2=g:GetNext() end
-	if tc1:IsRelateToEffect(e) and tc1:IsFaceup() and Duel.SendtoHand(tc1,nil,REASON_EFFECT)~=0 and tc2:IsRelateToEffect(e) then
+	if tc1:IsRelateToEffect(e) and tc1:IsFaceup() and Duel.SendtoHand(tc1,REASON_EFFECT)~=0 and tc2:IsRelateToEffect(e) then
 		Duel.Remove(tc2,nil,2,REASON_EFFECT)
 	end
 end
