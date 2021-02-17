@@ -62,9 +62,8 @@ function cid.spop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.BreakEffect()
 		local a=Duel.GetAttacker()
 		local ag=a:GetAttackableTarget()
-		if a:IsAttackable() and not a:IsImmuneToEffect(e) and ag:IsContains(tc) then
-			Duel.BreakEffect()
-			Duel.ChangeAttackTarget(tc)
+		if a and not a:IsImmuneToEffect(e) and a:IsRelateToBattle() and a:GetAttackableTarget() and a:GetAttackableTarget():IsContains(tc) then
+		Duel.ChangeAttackTarget(tc)
 		end
 	end
 end
