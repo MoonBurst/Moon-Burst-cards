@@ -34,7 +34,7 @@ function s.initial_effect(c)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCondition(s.con)
 	e4:SetCost(s.detatch)
-	e4:SetTarget(s.hdtg)
+--	e4:SetTarget(s.hdtg)
 	e4:SetOperation(s.activate)
 	c:RegisterEffect(e4)
 	--negate till end phase
