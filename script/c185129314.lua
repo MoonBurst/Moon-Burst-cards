@@ -2,7 +2,7 @@
 --Scripted by "Nekro"
 local s,id=GetID()
 function s.initial_effect(c)
-    --Set 4 "Relic Saint" from GY (1)
+    --Reveal 2; Xyz (1)
     local e1=Effect.CreateEffect(c)
     e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
     e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
@@ -33,7 +33,7 @@ function s.initial_effect(c)
     c:RegisterEffect(e3)
 end
 
---Set 4 "Relic Saint" from GY (1)
+--Reveal 2; Xyz
 function s.filter(c)
     return c:IsSetCard(0x1145) and c:GetType()==TYPE_CONTINUOUS+TYPE_TRAP and not c:IsPublic()
 end
@@ -41,7 +41,8 @@ function s.xfilter(c)
     return c:IsSetCard(0x1145) and c:IsType(TYPE_XYZ)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_HAND,0,2,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_HAND,0,2,nil)
+		and Duel.IsExistingMatchingCard(s.xfilter,tp,LOCATION_EXTRA,0,1,nil) end
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
