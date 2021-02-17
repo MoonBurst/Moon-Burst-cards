@@ -34,7 +34,7 @@ function s.initial_effect(c)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCondition(s.con)
 	e4:SetCost(s.detatch)
---	e4:SetTarget(s.hdtg)
+	e4:SetTarget(s.target)
 	e4:SetOperation(s.activate)
 	c:RegisterEffect(e4)
 	--negate till end phase
@@ -74,7 +74,11 @@ function s.detatch(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 
-
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK)
+        and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK) end
+    Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,0,LOCATION_MZONE+LOCATION_EXTRA)
+end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local off=1
 	local ops={}
