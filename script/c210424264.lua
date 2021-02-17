@@ -142,7 +142,7 @@ function cid.moveop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.MoveSequence(tc,math.log(Duel.SelectDisableField(tp,1,LOCATION_MZONE,0,0),2))
 end
 --add from Deck to hand.
-function cid.thfilter(c)
+function cid.searchfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x666) and c:IsAbleToHand()
 end
 function cid.searchcon(e,tp,eg,ep,ev,re,r,rp)
