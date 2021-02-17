@@ -54,6 +54,13 @@ end
 function s.xyzcheck(g)
 	return g:IsExists(Card.IsSetCard,1,nil,0x1145)
 end
+--stats up
+function s.atkfilter(c)
+	return c:GetSummonLocation()==LOCATION_EXTRA
+end
+function s.atkval(e,c)
+	return Duel.GetMatchingGroupCount(s.atkfilter,c:GetControler(),0,LOCATION_MZONE,nil)*500
+end
 --banish stuff
 function s.confilter(c)
 	return c:IsFaceup() and (c:IsType(TYPE_FUSION) or c:IsType(TYPE_SYNCHRO) or c:IsType(TYPE_XYZ) or c:IsType(TYPE_LINK))	
