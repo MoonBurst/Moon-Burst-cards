@@ -3,7 +3,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	c:SetUniqueOnField(1,0,id)
-	c:SetSPSummonOnce(c,id)
+	c:SetSPSummonOnce(id)
 	c:EnableReviveLimit()
 	Xyz.AddProcedure(c,nil,8,2,nil,nil,nil,nil,99,s.xyzcheck)
 	local e1=Effect.CreateEffect(c)
