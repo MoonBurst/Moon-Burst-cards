@@ -25,6 +25,7 @@ function s.initial_effect(c)
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
+	e3:SetCountLimit(1,id)
 	e3:SetCost(s.discost)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
@@ -32,7 +33,7 @@ function s.initial_effect(c)
 end
 --Filters
 function s.spfilter(c,e,tp)
-    return c:IsSetCard(0xc54) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP)
+	return c:IsSetCard(0xc54) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP)
 end
 
 --Place as Spell (1)
@@ -55,7 +56,7 @@ end
 
 --Special Summon to Column (2)
 function s.attfilter(c)
-    return c:IsType(TYPE_MONSTER) and c:IsSetCard(0xc54)
+	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0xc54)
 end
 
 function s.atttg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -84,7 +85,7 @@ end
 
 --Special Summon from Hand (3)
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-    return Duel.GetTurnPlayer()==tp --and e:GetHandler():IsLocation(LOCATION_HAND)
+	return Duel.GetTurnPlayer()==tp --and e:GetHandler():IsLocation(LOCATION_HAND)
 end
 
 function s.disfilter(c)
@@ -99,18 +100,18 @@ function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chkc then return chkc:IsLocation(LOCATION_GRAVE) and s.attfilter(chkc,e,tp) end
-    if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-        and Duel.IsExistingTarget(s.attfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-    local g=Duel.SelectTarget(tp,s.attfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
-    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and s.attfilter(chkc,e,tp) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingTarget(s.attfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g=Duel.SelectTarget(tp,s.attfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
 end
 
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-    if e:GetHandler():IsRelateToEffect(e) then
-        Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+	if e:GetHandler():IsRelateToEffect(e) then
+		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 		if tc:IsAttribute(ATTRIBUTE_DARK) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTRIBUTE)
 			local rc=Duel.AnnounceAttribute(tp,1,0xff)
@@ -121,5 +122,5 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetValue(rc)
 			tc:RegisterEffect(e1)
 		end
-    end
+	end
 end
