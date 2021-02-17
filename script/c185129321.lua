@@ -79,22 +79,22 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local off=1
 	local ops={}
 	local opval={}
-	if Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_EXTRA,0,1,TYPE_FUSION,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_ONFIELD,0,1,TYPE_FUSION,tp) then
+	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,TYPE_FUSION,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,TYPE_FUSION,tp) then
 		ops[off]=aux.Stringid(id,3)
 		opval[off-1]=1
 		off=off+1
 	end
-	if Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_EXTRA,0,1,TYPE_SYNCHRO,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_ONFIELD,0,1,TYPE_SYNCHRO,tp) then
+	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,TYPE_SYNCHRO,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,TYPE_SYNCHRO,tp) then
 		ops[off]=aux.Stringid(id,4)
 		opval[off-1]=2
 		off=off+1
 	end
-	if Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_EXTRA,0,1,TYPE_XYZ,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_ONFIELD,0,1,TYPE_XYZ,tp) then
+	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,TYPE_XYZ,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,TYPE_XYZ,tp) then
 		ops[off]=aux.Stringid(id,5)
 		opval[off-1]=3
 		off=off+1
 	end
-	if Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_EXTRA,0,1,TYPE_LINK,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_ONFIELD,0,1,TYPE_LINK,tp) then
+	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,TYPE_LINK,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,TYPE_LINK,tp) then
 		ops[off]=aux.Stringid(id,6)
 		opval[off-1]=4
 		off=off+1
