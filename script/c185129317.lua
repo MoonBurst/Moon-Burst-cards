@@ -48,8 +48,8 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 --Set trap from GY
 function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsReleasable() end
-	Duel.Release(e:GetHandler(),REASON_COST)
+    if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
+    Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
 end
 function s.setfilter(c)
 	return c:GetType()&0x20004==0x20004 and c:IsSSetable(true) and c:IsSetCard(0x1145)
