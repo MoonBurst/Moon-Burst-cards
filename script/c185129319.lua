@@ -54,6 +54,6 @@ function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
     if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
-        Duel.Remove(eg,REASON_EFFECT)
+        Duel.Remove(eg,nil,REASON_EFFECT)
     end
 end
