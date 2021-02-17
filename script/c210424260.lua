@@ -148,10 +148,10 @@ local c=e:GetHandler()
 	return eg:IsContains(e:GetHandler()) and re and re:GetOwner()~=c
 end
 function cid.destg2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc~=c and chkc:IsLocation(LOCATION_SZONE) and chkc:IsControler(1-tp) and cid.desfilter2(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(cid.desfilter2,tp,0,LOCATION_SZONE,1,nil) end
+	if chkc then return chkc~=c and chkc:IsLocation(LOCATION_ONFIELD) and chkc:IsControler(1-tp) and cid.desfilter2(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(cid.desfilter2,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,cid.desfilter2,tp,0,LOCATION_SZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,cid.desfilter2,tp,0,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function cid.desop2(e,tp,eg,ep,ev,re,r,rp)
