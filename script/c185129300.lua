@@ -55,9 +55,9 @@ function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,8,nil) end
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local sg=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,8,8,nil)
-	if #sg>7 then
+	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil)
+	if g:GetClassCount(Card.GetCode)>=8 then
+		local sg=aux.SelectUnselectGroup(g,e,tp,8,8,aux.dncheck,1,tp,HINTMSG_TOGRAVE)
 		Duel.SendtoGrave(sg,REASON_EFFECT)
 	end
 end
