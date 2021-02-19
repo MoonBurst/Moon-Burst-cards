@@ -71,6 +71,7 @@ end
 
 --Procedure - Altar
 function Altar.AddProcedure(c,altercon)
+	c:EnableCounterPermit(COUNTER_RUNIC)
     local lv=c:GetLevel()
     local e1=Effect.CreateEffect(c)
     e1:SetType(EFFECT_TYPE_FIELD)
@@ -105,7 +106,6 @@ function Altar.Target(ac,lv)
                 local sg=Duel.SelectMatchingCard(tp,Card.IsCanBeRunicMaterial,tp,LOCATION_MZONE,0,1,1,ac,tp,lv)
                 sg:KeepAlive()
                 e:SetLabelObject(sg)
-                Debug.Message("tg")
                 return true
             end
 end
@@ -117,7 +117,10 @@ function Altar.Operation(ac,lv)
                 for tc in aux.Next(sg) do
                     tc:RemoveCounter(tp,COUNTER_RUNIC,lv,REASON_MATERIAL)
                     Duel.SendtoGrave(tc,REASON_MATERIAL+REASON_ALTAR)
+					local cc=tc:GetCounter(COUNTER_SPELL)
                 end
+				if cc>0 then 
+					ac:AddCounter(COUNTER_RUNIC,cc) end
                 sg:DeleteGroup()
             end
 end
