@@ -109,18 +109,62 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if off==1 then return end
 	local op=Duel.SelectOption(tp,table.unpack(ops))
 	if opval[op]==1 then --Banish all Fusion
-		local fus=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA+LOCATION_ONFIELD,nil,TYPE_FUSION)
-		Duel.Remove(fus,POS_FACEUP,REASON_EFFECT)
+		local fus=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA,nil,TYPE_FUSION)
+		if Duel.Remove(fus,POS_FACEUP,REASON_EFFECT+REASON_TEMPORARY)~=0 then
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+			e1:SetCode(EVENT_PHASE+PHASE_END)
+			e1:SetReset(RESET_PHASE+PHASE_END)
+			e1:SetLabelObject(fus)
+			e1:SetCountLimit(1)
+			e1:SetOperation(s.retop)
+			Duel.RegisterEffect(e1,tp)
+			fus:KeepAlive()
+		end
 	elseif opval[op]==2 then --Banish all Synchro
-		local syn=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA+LOCATION_ONFIELD,nil,TYPE_SYNCHRO)
-		Duel.Remove(syn,POS_FACEUP,REASON_EFFECT)
+		local syn=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA,nil,TYPE_SYNCHRO)
+		if Duel.Remove(syn,POS_FACEUP,REASON_EFFECT+REASON_TEMPORARY)~=0 then
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+			e1:SetCode(EVENT_PHASE+PHASE_END)
+			e1:SetReset(RESET_PHASE+PHASE_END)
+			e1:SetLabelObject(syn)
+			e1:SetCountLimit(1)
+			e1:SetOperation(s.retop)
+			Duel.RegisterEffect(e1,tp)
+			syn:KeepAlive()
+		end
 	elseif opval[op]==3 then --Banish all Xyz
-		local xyz=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA+LOCATION_ONFIELD,nil,TYPE_XYZ)
-		Duel.Remove(xyz,POS_FACEUP,REASON_EFFECT)
+		local xyz=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA,nil,TYPE_XYZ)
+		if Duel.Remove(xyz,POS_FACEUP,REASON_EFFECT+REASON_TEMPORARY)~=0 then
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+			e1:SetCode(EVENT_PHASE+PHASE_END)
+			e1:SetReset(RESET_PHASE+PHASE_END)
+			e1:SetLabelObject(xyz)
+			e1:SetCountLimit(1)
+			e1:SetOperation(s.retop)
+			Duel.RegisterEffect(e1,tp)
+			xyz:KeepAlive()
+		end
 	elseif opval[op]==4 then --Banish all Link
-		local lin=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA+LOCATION_ONFIELD,nil,TYPE_LINK)
-		Duel.Remove(lin,POS_FACEUP,REASON_EFFECT)
+		local lin=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA,nil,TYPE_LINK)
+		if Duel.Remove(lin,POS_FACEUP,REASON_EFFECT+REASON_TEMPORARY)~=0 then
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+			e1:SetCode(EVENT_PHASE+PHASE_END)
+			e1:SetReset(RESET_PHASE+PHASE_END)
+			e1:SetLabelObject(lin)
+			e1:SetCountLimit(1)
+			e1:SetOperation(s.retop)
+			Duel.RegisterEffect(e1,tp)
+			lin:KeepAlive()
+		end
 	end
+end
+
+function s.retop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.SendtoHand(e:GetLabelObject(),1-tp,REASON_RULE)
 end
 
 --negate effect till end phase
