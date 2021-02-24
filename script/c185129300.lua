@@ -6,6 +6,7 @@ function s.initial_effect(c)
 	c:SetSPSummonOnce(id)
 	c:EnableReviveLimit()
 	Xyz.AddProcedure(c,nil,8,2,nil,nil,99,nil,nil,s.xyzcheck)
+	--Cannot be targeted or destroyed by card effects while it has a "Relic Saint" Trap as material
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
@@ -17,6 +18,7 @@ function s.initial_effect(c)
 	local e2=e1:Clone()
 	e2:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
 	c:RegisterEffect(e2)
+	--Send 8 "Relic Saint" Traps to the GY
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,0))
 	e3:SetCategory(CATEGORY_TOGRAVE)
@@ -27,6 +29,7 @@ function s.initial_effect(c)
 	e3:SetTarget(s.tgtg)
 	e3:SetOperation(s.tgop)
 	c:RegisterEffect(e3)
+	--QP Set "Relic Saint" Traps from the GY
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
 	e4:SetType(EFFECT_TYPE_QUICK_O)
@@ -42,9 +45,13 @@ end
 function s.xyzcheck(g)
 	return g:IsExists(Card.IsSetCard,1,nil,0x1145)
 end
+
+--Cannot be targeted or destroyed by card effects while it has a "Relic Saint" Trap as material
 function s.imcon(e)
 	return e:GetHandler():GetOverlayGroup():IsExists(Card.IsType,1,nil,TYPE_TRAP)
 end
+
+--Send 8 "Relic Saint" Traps to the GY
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ)
 end
@@ -55,12 +62,14 @@ function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,8,nil) end
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil)
+	local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
 	if g:GetClassCount(Card.GetCode)>=8 then
-		local sg=aux.SelectUnselectGroup(g,e,tp,8,8,aux.dncheck,1,tp,HINTMSG_TOGRAVE)
+		local sg=Duel.SelectMatchingCard(tp,aux.AND(aux.dncheck,s.tgfilter),tp,LOCATION_DECK,0,8,8,nil)
 		Duel.SendtoGrave(sg,REASON_EFFECT)
 	end
 end
+
+--QP Set "Relic Saint" Traps from the GY
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
 	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
