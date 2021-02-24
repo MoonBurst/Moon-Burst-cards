@@ -73,32 +73,35 @@ function s.detatch(e,tp,eg,ep,ev,re,r,rp,chk)
     e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 
+function s.extrafilter(c)
+	return c:IsType(TYPE_FUSION) or c:IsType(TYPE_SYNCHRO) or c:IsType(TYPE_XYZ) or c:IsType(TYPE_LINK) 
+end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK)
-        and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK) end
+    if chk==0 then return Duel.IsExistingMatchingCard(s.extrafilter,tp,0,LOCATION_EXTRA,1,nil)
+        and Duel.IsExistingMatchingCard(s.extrafilter,tp,0,LOCATION_ONFIELD,1,nil) end
     Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,0,LOCATION_MZONE+LOCATION_EXTRA)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local off=1
 	local ops={}
 	local opval={}
-	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,TYPE_FUSION,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,TYPE_FUSION,tp) then
+	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,nil,TYPE_FUSION) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,nil,TYPE_FUSION) then
 		ops[off]=aux.Stringid(id,3)
 		opval[off-1]=1
 		off=off+1
 	end
-	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,TYPE_SYNCHRO,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,TYPE_SYNCHRO,tp) then
+	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,nil,TYPE_SYNCHRO) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,nil,TYPE_SYNCHRO) then
 		ops[off]=aux.Stringid(id,4)
 		opval[off-1]=2
 		off=off+1
 	end
-	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,TYPE_XYZ,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,TYPE_XYZ,tp) then
+	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,nil,TYPE_XYZ) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,nil,TYPE_XYZ) then
 		ops[off]=aux.Stringid(id,5)
 		opval[off-1]=3
 		off=off+1
 	end
-	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,TYPE_LINK,tp) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,TYPE_LINK,tp) then
+	if Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_EXTRA,1,nil,TYPE_LINK) and Duel.IsExistingMatchingCard(Card.IsType,tp,0,LOCATION_ONFIELD,1,nil,TYPE_LINK) then
 		ops[off]=aux.Stringid(id,6)
 		opval[off-1]=4
 		off=off+1
@@ -106,36 +109,19 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if off==1 then return end
 	local op=Duel.SelectOption(tp,table.unpack(ops))
 	if opval[op]==1 then --Banish all Fusion
-		local fus=Duel.GetMatchingGroup(Card.IsType,1-tp,0,LOCATION_EXTRA,TYPE_FUSION)
+		local fus=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA+LOCATION_ONFIELD,nil,TYPE_FUSION)
 		Duel.Remove(fus,POS_FACEUP,REASON_EFFECT)
 	elseif opval[op]==2 then --Banish all Synchro
-			local syn=Duel.GetMatchingGroup(Card.IsType,1-tp,0,LOCATION_EXTRA,TYPE_SYNCHRO)
-			Duel.Remove(syn,POS_FACEUP,REASON_EFFECT)
+		local syn=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA+LOCATION_ONFIELD,nil,TYPE_SYNCHRO)
+		Duel.Remove(syn,POS_FACEUP,REASON_EFFECT)
 	elseif opval[op]==3 then --Banish all Xyz
-		local xyz=Duel.GetMatchingGroup(Card.IsType,1-tp,0,LOCATION_EXTRA,TYPE_XYZ)
+		local xyz=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA+LOCATION_ONFIELD,nil,TYPE_XYZ)
 		Duel.Remove(xyz,POS_FACEUP,REASON_EFFECT)
 	elseif opval[op]==4 then --Banish all Link
-		local lin=Duel.GetMatchingGroup(Card.IsType,1-tp,0,LOCATION_EXTRA,TYPE_LINK)
+		local lin=Duel.GetMatchingGroup(Card.IsType,tp,0,LOCATION_EXTRA+LOCATION_ONFIELD,nil,TYPE_LINK)
 		Duel.Remove(lin,POS_FACEUP,REASON_EFFECT)
 	end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 --negate effect till end phase
 function s.cfilter(c)
