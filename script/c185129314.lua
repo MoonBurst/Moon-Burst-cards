@@ -59,6 +59,10 @@ end
 function s.confilter(c)
     return c:IsFaceup() and c:IsSetCard(0x1145) and c:IsType(TYPE_XYZ)
 end
+function s.thfilter(c)
+	return c:IsSetCard(0x1145) and c:IsType(TYPE_SPELL) and c:IsAbleToHand()
+end
+
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
     return Duel.IsExistingMatchingCard(s.confilter,tp,LOCATION_MZONE,0,1,nil)
 end
