@@ -1,20 +1,14 @@
 --Moon Burst's Spirit Mark
-local function getID()
-	local str=string.match(debug.getinfo(2,'S')['source'],"c%d+%.lua")
-	str=string.sub(str,1,string.len(str)-4)
-	local cod=_G[str]
-	local id=tonumber(string.sub(str,2))
-	return id,cod
-end
-local id,cid=getID()
-function cid.initial_effect(c)
+
+local s,id=GetID()
+function s.initial_effect(c)
 c:EnableReviveLimit()	
 	c:SetUniqueOnField(1,0,id)
 	--synchro summon
 	if Card.Type then 
 	Synchro.AddProcedure(c,nil,1,1,Synchro.NonTuner(nil),1,99)
 	else if not Card.Type then
-	aux.AddFusionProcFun2(c,cid.ffilter,cid.ffilter,false)
+	aux.AddFusionProcFun2(c,s.ffilter,s.ffilter,false)
 	aux.AddContactFusionProcedure(c,Card.IsReleasable,LOCATION_ONFIELD,0,Duel.Release,REASON_COST+REASON_FUSION+REASON_MATERIAL)
 	end
 	end
@@ -25,9 +19,9 @@ c:EnableReviveLimit()
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
 	e1:SetRange(LOCATION_EXTRA)
-	e1:SetCondition(cid.spcon)
---	e1:SetTarget(cid.sptg)
-	e1:SetOperation(cid.spop)
+	e1:SetCondition(s.spcon)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
 	e1:SetValue(SUMMON_TYPE_SYNCHRO)
 	c:RegisterEffect(e1)
 	--equip
@@ -37,9 +31,9 @@ c:EnableReviveLimit()
 	e2:SetCategory(CATEGORY_EQUIP)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetCountLimit(1,id)
-	e2:SetCost(cid.playcost)
-	e2:SetTarget(cid.eqtg)
-	e2:SetOperation(cid.eqop)
+	e2:SetCost(s.playcost)
+	e2:SetTarget(s.eqtg)
+	e2:SetOperation(s.eqop)
 	c:RegisterEffect(e2)
 	--atkup
 	local e3=Effect.CreateEffect(c)
@@ -67,40 +61,40 @@ c:EnableReviveLimit()
 	e6:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e6:SetRange(LOCATION_MZONE)
 	e6:SetCountLimit(1,id+1000)
-	e6:SetTarget(cid.atktg)
-	e6:SetOperation(cid.atkop)
+	e6:SetTarget(s.atktg)
+	e6:SetOperation(s.atkop)
 	c:RegisterEffect(e6)
 end
 --Filters
-function cid.ffilter(c)
-	return c:IsSetCard(0x666) and not c:IsType(TYPE_FIELD) and c:IsFaceup()
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(0x666) and not c:IsType(TYPE_FIELD) and c:IsFaceup() 
 end
-function cid.atkfilter(c)
+function s.atkfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x666) and c:GetBaseAttack()<1501
 end
-function cid.atkfilter2(c)
+function s.atkfilter2(c)
 	return c:IsFaceup() and c:IsSetCard(0x666) and c:IsType(TYPE_MONSTER)
 end
-function cid.filter(c,e,tp)
+function s.filter(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsSetCard(0x666) and c:IsType(TYPE_PENDULUM)
 end
 --Grave Equip
-function cid.playcost(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.playcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetDecktopGroup(tp,2)
 	if chk==0 then return g:FilterCount(Card.IsAbleToGraveAsCost,nil)==2 end
 	Duel.DisableShuffleCheck()
 	Duel.SendtoGrave(g,REASON_COST)
 end
-function cid.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_PZONE) and chkc:IsControler(tp) and cid.filter(chkc,e,tp) end
+function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_PZONE) and chkc:IsControler(tp) and s.filter(chkc,e,tp) end
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingTarget(cid.filter,tp,LOCATION_PZONE,0,1,nil,e,tp) end
+		and Duel.IsExistingTarget(s.filter,tp,LOCATION_PZONE,0,1,nil,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectTarget(tp,cid.filter,tp,LOCATION_PZONE,0,1,1,nil,e,tp)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_PZONE,0,1,1,nil,e,tp)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_EQUIP,e:GetHandler(),1,0,0)
 end
-function cid.eqop(e,tp,eg,ep,ev,re,r,rp)
+function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) then
@@ -112,24 +106,24 @@ function cid.eqop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetCode(EFFECT_EQUIP_LIMIT)
 		e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-		e2:SetValue(cid.eqlimit)
+		e2:SetValue(s.eqlimit)
 		c:RegisterEffect(e2)
 	end
 end
-function cid.eqlimit(e,c)
+function s.eqlimit(e,c)
 	return c:IsSetCard(0x666)
 end
 --(Quick Effect) ATK boost
-function cid.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and cid.atkfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(cid.atkfilter,tp,LOCATION_MZONE,0,1,nil) end
+function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.atkfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.atkfilter,tp,LOCATION_MZONE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	local g=Duel.SelectTarget(tp,cid.atkfilter,tp,LOCATION_MZONE,0,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.atkfilter,tp,LOCATION_MZONE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_ATKCHANGE,g,1,0,0)
 end
-function cid.atkop(e,tp,eg,ep,ev,re,r,rp)
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	local val=Duel.GetMatchingGroupCount(cid.atkfilter2,tp,LOCATION_ONFIELD+LOCATION_EXTRA+LOCATION_GRAVE,0,nil)*200
+	local val=Duel.GetMatchingGroupCount(s.atkfilter2,tp,LOCATION_ONFIELD+LOCATION_EXTRA+LOCATION_GRAVE,0,nil)*200
 	if val>0 and tc:IsRelateToEffect(e) and tc:IsFaceup() then
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
@@ -140,20 +134,29 @@ function cid.atkop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --SS alt method
-function cid.spcon(e,c)
+function s.spcon(e,c)
 	if c==nil then return true end
-	return 	Duel.IsExistingMatchingCard(cid.ffilter,c:GetControler(),LOCATION_ONFIELD,0,2,nil)
+	local tp=c:GetControler()
+	local g=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_ONFIELD,0,nil)
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>-2 and #g>1 and aux.SelectUnselectGroup(g,e,tp,2,2,aux.ChkfMMZ(1),0)
 end
-function cid.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-	and Duel.IsExistingMatchingCard(cid.ffilter,tp,LOCATION_ONFIELD,0,2,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_ONFIELD)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,c)
+	local g=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_ONFIELD,0,nil)
+	local sg=aux.SelectUnselectGroup(g,e,tp,2,2,aux.ChkfMMZ(1),1,tp,HINTMSG_TOGRAVE,nil,nil,true)
+	local dg=sg:Filter(Card.IsFacedown,nil)
+	if #dg>0 then
+		Duel.ConfirmCards(1-tp,dg)
+	end
+	if #sg==2 then
+		sg:KeepAlive()
+		e:SetLabelObject(sg)
+		return true
+	end
+	return false
 end
-function cid.spop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	local g=Duel.SelectMatchingCard(tp,cid.ffilter,tp,LOCATION_ONFIELD,0,2,2,nil)
-	Duel.SendtoGrave(g,REASON_COST+REASON_MATERIAL)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
+	local g=e:GetLabelObject()
+	if not g then return end
+	Duel.SendtoGrave(g,REASON_COST)
+	g:DeleteGroup()
 end
