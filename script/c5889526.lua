@@ -16,11 +16,13 @@ function s.initial_effect(c)
 	--place
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(GLCATEGORY_PLACE_SELF_AS_CONTINUOUS_TRAP)
+	e2:GLSetCategory(GLCATEGORY_PLACE_SELF_AS_CONTINUOUS_TRAP)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1,id)
+	e2:SetCondition(s.pccon)
 	e2:SetTarget(s.pctg)
 	e2:SetOperation(s.pcop)
 	c:RegisterEffect(e2)
@@ -64,6 +66,9 @@ function s.disop0(e,tp)
 end
 
 --PLACE
+function s.pccon(e)
+	return Duel.IsMainPhase()
+end
 function s.pcfilter(c,cc)
 	local ct=(c:GetOwner()==cc:GetOwner()) and 1 or 0
 	return c:IsFaceup() and c:IsType(TYPE_MONSTER) and not c:IsForbidden() and Duel.GetLocationCount(c:GetOwner(),LOCATION_SZONE)>ct

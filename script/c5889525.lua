@@ -11,7 +11,7 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetHintTiming(0,TIMING_BATTLE_START+TIMING_ATTACK)
 	e1:SetCountLimit(1,id)
-	e1:SetCondition(s.pccon)
+	--e1:SetCondition(s.pccon)
 	e1:SetTarget(s.pctg)
 	e1:SetOperation(s.pcop)
 	c:RegisterEffect(e1)
@@ -30,9 +30,9 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 --PLACE AS TRAP
-function s.pccon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsBattlePhase()
-end
+-- function s.pccon(e,tp,eg,ep,ev,re,r,rp)
+	-- return Duel.IsBattlePhase()
+-- end
 function s.pctg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return false end

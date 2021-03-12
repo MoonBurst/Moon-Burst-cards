@@ -69,12 +69,21 @@ function s.zntg(e,tp,eg,ep,ev,re,r,rp,chk)
 		return check
 	end
 	local zone=0
+	local ct=0
 	for i=0,4 do
 		if not Duel.CheckLocation(tp,LOCATION_MZONE,i) and not Duel.GetFieldGroup(tp,LOCATION_MZONE,0):IsExists(s.zcheck,1,nil,i,tp) then
+			ct=ct+1
 			zone=zone|(0x1<<i)
 		end
 	end
-	local en=Duel.SelectFieldZone(tp,1,LOCATION_MZONE,0,~zone,false)
+	if ct>1 then
+		local int={}
+		for i=1,ct do
+			table.insert(int,i)
+		end
+		ct=Duel.AnnounceNumber(tp,table.unpack(int))
+	end
+	local en=Duel.SelectFieldZone(tp,ct,LOCATION_MZONE,0,~zone,false)
 	Duel.Hint(HINT_ZONE,tp,en)
 	e:SetLabel(en)
 end
@@ -104,11 +113,13 @@ function s.znop(e,tp,eg,ep,ev,re,r,rp)
 				local fixct=#t
 				for i=1,fixct do
 					local ce=t[i]
-					local reset=(ce:GetReset()&(~(RESET_EVENT+RESETS_STANDARD_DISABLE)))|(RESET_EVENT+RESETS_STANDARD_DISABLE)
+					local reset,rct=ce:GetReset()
+					if not rct then rct=1 end
+					reset=(reset&(~(RESET_EVENT+RESETS_STANDARD_DISABLE)))|(RESET_EVENT+RESETS_STANDARD_DISABLE)
 					if ce:GetCode()==EFFECT_DISABLE_FIELD then
 						local zone=ce:GetLabel()
-						if zone~=0 and zone&en==en then
-							tc:RegisterFlagEffect(id,reset,0,1)
+						if zone~=0 and zone&en>0 then
+							tc:RegisterFlagEffect(id,reset,0,rct)
 							local ne=Effect.CreateEffect(ce:GetOwner())
 							ne:SetType(EFFECT_TYPE_FIELD)
 							ne:SetRange(ce:GLGetRange())
@@ -116,11 +127,11 @@ function s.znop(e,tp,eg,ep,ev,re,r,rp)
 							ne:SetLabel(zone&(~en))
 							if ce:GetLabelObject() then ne:SetLabelObject(ce:GetLabelObject()) end
 							ne:SetOperation(s.disop)
-							ne:SetReset(reset)
+							ne:SetReset(reset,rct)
 							tc:RegisterEffect(ne)
 							ce:SetCondition(s.zcond)
 						elseif zone==0 then
-							tc:RegisterFlagEffect(id,reset,0,1)
+							tc:RegisterFlagEffect(id,reset,0,rct)
 							local ne=Effect.CreateEffect(ce:GetOwner())
 							ne:SetType(EFFECT_TYPE_FIELD)
 							ne:SetRange(ce:GLGetRange())
@@ -128,7 +139,7 @@ function s.znop(e,tp,eg,ep,ev,re,r,rp)
 							ne:SetLabel(~en)
 							if ce:GetLabelObject() then ne:SetLabelObject(ce:GetLabelObject()) end
 							ne:SetOperation(s.disop2(ce:GetOperation()))
-							ne:SetReset(reset)
+							ne:SetReset(reset,rct)
 							tc:RegisterEffect(ne)
 							ce:SetCondition(s.zcond)
 						end
@@ -137,10 +148,10 @@ function s.znop(e,tp,eg,ep,ev,re,r,rp)
 						local zct=math.fmod(val,0x10)
 						local zone=bit.rshift(val-zct,16)
 						if zone&en~=0 then
-							tc:RegisterFlagEffect(id,reset,0,1)
+							tc:RegisterFlagEffect(id,reset,0,rct)
 							local ne=ce:Clone()
 							ne:SetValue(bit.lshift(zone&(~en),16)+zct-1)
-							ne:SetReset(reset)
+							ne:SetReset(reset,rct)
 							tc:RegisterEffect(ne)
 							ce:SetCondition(s.zcond)
 						end
@@ -159,28 +170,29 @@ function s.znop(e,tp,eg,ep,ev,re,r,rp)
 			for i=1,fixct do
 				local ce=t[i]
 				if ce and ce:GetCode()==EFFECT_DISABLE_FIELD then
-					local reset=ce:GetReset()
+					local reset,rct=ce:GetReset()
+					if not rct then rct=1 end
 					local zone=ce:GetLabel()
-					if zone~=0 and zone&en==en then
-						ce:GetOwner():RegisterFlagEffect(id,reset,0,1)
+					if zone~=0 and zone&en>0 then
+						ce:GetOwner():RegisterFlagEffect(id,reset,0,rct)
 						local ne=Effect.CreateEffect(ce:GetOwner())
 						ne:SetType(EFFECT_TYPE_FIELD)
 						ne:SetCode(EFFECT_DISABLE_FIELD)
 						ne:SetLabel(zone&(~en))
 						if ce:GetLabelObject() then ne:SetLabelObject(ce:GetLabelObject()) end
 						ne:SetOperation(s.disop)
-						ne:SetReset(reset)
+						ne:SetReset(reset,rct)
 						Duel.RegisterEffect(ne,p)
 						ce:SetCondition(s.zcond2)
 					elseif zone==0 then
-						ce:GetOwner():RegisterFlagEffect(id,reset,0,1)
+						ce:GetOwner():RegisterFlagEffect(id,reset,0,rct)
 						local ne=Effect.CreateEffect(ce:GetOwner())
 						ne:SetType(EFFECT_TYPE_FIELD)
 						ne:SetCode(EFFECT_DISABLE_FIELD)
 						ne:SetLabel(~en)
 						if ce:GetLabelObject() then ne:SetLabelObject(ce:GetLabelObject()) end
 						ne:SetOperation(s.disop2(ce:GetOperation()))
-						ne:SetReset(reset)
+						ne:SetReset(reset,rct)
 						Duel.RegisterEffect(ne,p)
 						ce:SetCondition(s.zcond2)
 					end
@@ -188,6 +200,7 @@ function s.znop(e,tp,eg,ep,ev,re,r,rp)
 			end
 		end
 	end
+	Duel.Readjust()
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)

@@ -35,16 +35,16 @@ end
 function s.disop(e,tp)
 	local c=e:GetHandler()
 	if c:IsLocation(LOCATION_MZONE) then
-		return c:GetFreeLinkedZone()
+		return 0x1f001f&c:GetFreeLinkedZone()
 	else
 		local zone=aux.GLGetLinkedZoneManually(c,true)
-		return zone
+		return 0x1f001f&zone
 	end
 end
 
 --SPSUMMON
 function s.cfilter(c)
-	return c:IsType(TYPE_MONSTER) and c:GetRace()&(~RACE_BEAST)>0
+	return c:IsType(TYPE_MONSTER) and c:GetRace()&(~(RACE_BEAST+RACE_BEASTWARRIOR+RACE_WINGEDBEAST))>0
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return not Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_GRAVE,0,1,nil)
@@ -74,7 +74,8 @@ function s.lizfilter(e,c)
 	return not c:IsOriginalRace(RACE_BEAST)
 end
 function s.spfilter(c,e,tp,ct)
-	return c:IsRace(RACE_BEAST) and c:IsLevel(ct) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	if not c:IsRace(RACE_BEAST) or c:GLGetLevel()>ct or not c:IsCanBeSpecialSummoned(e,0,tp,false,false) then return end
+	return (not c:IsLocation(LOCATION_EXTRA) and Duel.GetMZoneCount(tp,e:GetHandler())>0) or Duel.GetLocationCountFromEx(tp,tp,e:GetHandler(),c)>0
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then

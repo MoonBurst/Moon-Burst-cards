@@ -69,10 +69,10 @@ function s.pcfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsRace(RACE_BEAST) and not c:IsForbidden()
 end
 function s.chkfilter(c,tp)
-	return c:IsFaceup() and c:IsLocation(LOCATION_SZONE) and c:GetType()&0x20004==0x20004 and Duel.CheckLocation(1-tp,LOCATION_MZONE,4-c:GetSequence()) and not Duel.GetFieldGroup(tp,0,LOCATION_MZONE):IsExists(s.zcheck,1,nil,c:GetSequence(),tp)
+	return c:IsFaceup() and c:IsLocation(LOCATION_SZONE) and c:GetType()&0x20004==0x20004 and Duel.CheckLocation(1-tp,LOCATION_MZONE,4-c:GetSequence()) --and not Duel.GetFieldGroup(tp,0,LOCATION_MZONE):IsExists(s.zcheck,1,nil,c:GetSequence(),tp)
 end
 function s.zcheck(c,i,tp)
-	local zone=0x1<<(i+16)
+	local zone=0x1<<(-i+20)
 	return aux.IsZone(c,zone,tp)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -159,13 +159,13 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 		local zone=0
 		for tc in aux.Next(sg) do
 			local i=tc:GetSequence()
-			zone=zone|(0x1<<(i+16))
+			zone=zone|(0x1<<(20-i))
 		end
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_FIELD)
 		e1:SetCode(EFFECT_DISABLE_FIELD)
 		e1:SetOperation(s.disop)
-		e1:SetReset(RESET_PHASE+PHASE_END)
+		e1:SetReset(RESET_PHASE+PHASE_END,2)
 		e1:SetLabel(zone)
 		Duel.RegisterEffect(e1,tp)
 	end

@@ -29,7 +29,7 @@ function s.initial_effect(c)
 end
 --SEARCH
 function s.drawcon(e,tp,eg,ep,ev,re,r,rp)
-	return ep==tp and eg:IsExists(s.filter,1,nil)
+	return ep==tp and eg:IsExists(s.filter,1,nil) and not eg:IsContains(e:GetHandler())
 end
 function s.filter(c)
 	return c:IsRace(RACE_BEAST) and not c:IsPublic()
@@ -71,21 +71,21 @@ function s.drawop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 --DISABLE ZONE
-function s.pcfilter(c)
-	return c:IsType(TYPE_MONSTER) and c:IsRace(RACE_BEAST) and not c:IsForbidden()
+function s.pcfilter(c,e,tp,ct)
+	return c:IsType(TYPE_MONSTER) and c:IsRace(RACE_BEAST) and ((c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0) or not c:IsForbidden() and ct>0)
 end
 function s.zntg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ct=Duel.GetLocationCount(tp,LOCATION_SZONE)
 	if e:IsHasType(EFFECT_TYPE_ACTIVATE) and not e:GetHandler():IsLocation(LOCATION_SZONE) then ct=ct-1 end
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE,PLAYER_NONE,LOCATION_REASON_COUNT)>0 and ct>0 and Duel.IsExistingMatchingCard(s.pcfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,e:GetHandler()) end
-	local g=Duel.GetMatchingGroup(s.pcfilter,tp,LOCATION_GRAVE,0,nil)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE,PLAYER_NONE,LOCATION_REASON_COUNT)+Duel.GetLocationCount(1-tp,LOCATION_MZONE,PLAYER_NONE,LOCATION_REASON_COUNT)>0 and Duel.IsExistingMatchingCard(s.pcfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,e:GetHandler(),e,tp,ct) end
+	local g=Duel.GetMatchingGroup(s.pcfilter,tp,LOCATION_GRAVE,0,nil,e,tp,ct)
 	if #g>0 then
 		Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,g,1,0,0)
 	end
 end
 function s.znop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE,PLAYER_NONE,LOCATION_REASON_COUNT)>0 then
-		local dis=Duel.SelectDisableField(tp,1,LOCATION_MZONE,0,0)
+		local dis=Duel.SelectDisableField(tp,1,LOCATION_MZONE,LOCATION_MZONE,0)
 		Duel.Hint(HINT_ZONE,tp,dis)
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_FIELD)
@@ -95,17 +95,32 @@ function s.znop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetLabel(dis)
 		Duel.RegisterEffect(e1,tp)
 	end
-	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.pcfilter),tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,e:GetHandler())
-	if #g>0 and Duel.MoveToField(g:GetFirst(),tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetCode(EFFECT_CHANGE_TYPE)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TURN_SET)
-		e1:SetValue(TYPE_TRAP+TYPE_CONTINUOUS)
-		g:GetFirst():RegisterEffect(e1)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.pcfilter),tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,e:GetHandler(),e,tp,Duel.GetLocationCount(tp,LOCATION_SZONE))
+	if #g>0 then	
+		local tc=g:GetFirst()
+		local b1=(tc:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0)
+		local b2=(not tc:IsForbidden() and Duel.GetLocationCount(tp,LOCATION_SZONE)>0)
+		local op=0
+		if not tc or (not b1 and not b2) then return end
+		if b1 and b2 then
+			op=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
+		elseif b1 then
+			op=Duel.SelectOption(tp,aux.Stringid(id,2))
+		else
+			op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
+		end
+		if op==0 then
+			Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+		elseif op==1 and Duel.MoveToField(g:GetFirst(),tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetCode(EFFECT_CHANGE_TYPE)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TURN_SET)
+			e1:SetValue(TYPE_TRAP+TYPE_CONTINUOUS)
+			g:GetFirst():RegisterEffect(e1)
+		end
 	end
 end
 function s.disop(e,tp)
