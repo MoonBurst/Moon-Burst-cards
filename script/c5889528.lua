@@ -1,6 +1,8 @@
 --Marmotank Hoga
 --Scripted by: XGlitchy30
 local s,id=GetID()
+Duel.LoadScript("init.lua",false)
+
 function s.initial_effect(c)
 	--summon with s/t
 	local e1=Effect.CreateEffect(c)

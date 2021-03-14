@@ -1,6 +1,8 @@
 --Groundhoard Whistlecall
 --Scripted by: XGlitchy30
 local s,id=GetID()
+Duel.LoadScript("init.lua",false)
+
 function s.initial_effect(c)
 	--search
 	local e1=Effect.CreateEffect(c)

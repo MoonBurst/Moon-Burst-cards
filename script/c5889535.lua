@@ -1,6 +1,8 @@
 --Groundhoard Solarrest
 --Scripted by: XGlitchy30
 local s,id=GetID()
+Duel.LoadScript("init.lua",false)
+
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)

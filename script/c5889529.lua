@@ -1,6 +1,8 @@
 --Marmoterror Staua
 --Scripted by: XGlitchy30
 local s,id=GetID()
+Duel.LoadScript("init.lua",false)
+
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--special summon condition

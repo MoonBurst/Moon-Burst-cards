@@ -1,6 +1,8 @@
 --Marmototem Colonia
 --Scripted by: XGlitchy30
 local s,id=GetID()
+Duel.LoadScript("init.lua",false)
+
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	Fusion.AddProcMixN(c,true,true,s.ffilter,2)

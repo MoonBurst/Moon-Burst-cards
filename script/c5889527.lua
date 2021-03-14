@@ -1,6 +1,8 @@
 --Marmonk Grigia
 --Scripted by: XGlitchy30
 local s,id=GetID()
+Duel.LoadScript("init.lua",false)
+
 function s.initial_effect(c)
 	--atk/def
 	local e1=Effect.CreateEffect(c)

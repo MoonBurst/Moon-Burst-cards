@@ -1,6 +1,8 @@
 --Marmoth Alpesca
 --Scripted by: XGlitchy30
 local s,id=GetID()
+Duel.LoadScript("init.lua",false)
+
 function s.initial_effect(c)
 	--place as Trap
 	local e1=Effect.CreateEffect(c)

@@ -1,6 +1,8 @@
 --Groundhoard Supplipid
 --Scripted by: XGlitchy30
 local s,id=GetID()
+Duel.LoadScript("init.lua",false)
+
 function s.initial_effect(c)
 	--stats boost
 	local e1=Effect.CreateEffect(c)

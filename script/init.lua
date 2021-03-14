@@ -96,6 +96,12 @@ function Auxiliary.GLSetValueDependingOnNumber(i,ct,...)
 	return 0
 end
 
+function Card.GLGetLevel(c)
+	if c:IsOriginalType(TYPE_XYZ) then return c:GetRank()
+	elseif c:IsOriginalType(TYPE_LINK) then return c:GetLink()
+	else return c:GetLevel() end
+end
+
 --Returns all the zones the arrows PRINTED on the card (c) point to, REGARDLESS of the card type (even if it is not an active Link Monster) or of the location it is in (MZONE/SZONE)
 --If f is set to true, the function only returns the available zones (usable and unoccupied)
 function Auxiliary.GLGetLinkedZoneManually(c,f)

@@ -1,6 +1,8 @@
 --Groundhoard Territory
 --Scripted by: XGlitchy30
 local s,id=GetID()
+Duel.LoadScript("init.lua",false)
+
 function s.initial_effect(c)
 	--activate
 	local e1=Effect.CreateEffect(c)
