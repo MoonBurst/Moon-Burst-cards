@@ -206,3 +206,5 @@ function Auxiliary.GLGetLinkedZoneManually(c,f)
 	end
 	return zone
 end
+
+Duel.LoadScript("proc_runic.lua")
