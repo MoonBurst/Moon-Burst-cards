@@ -117,7 +117,7 @@ function Altar.Operation(ac,lv)
                 for tc in aux.Next(sg) do
                     tc:RemoveCounter(tp,COUNTER_RUNIC,lv,REASON_MATERIAL)
                     Duel.SendtoGrave(tc,REASON_MATERIAL+REASON_ALTAR)
-					local cc=tc:GetCounter(COUNTER_SPELL)
+					local cc=tc:GetCounter(COUNTER_RUNIC)
                 end
 				if cc>0 then 
 					ac:AddCounter(COUNTER_RUNIC,cc) end
