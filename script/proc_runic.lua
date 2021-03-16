@@ -69,11 +69,14 @@ function Runic.Operation(c)
 			end
 end
 
---Procedure - Altar
+
+
+
 function Altar.AddProcedure(c,altercon)
+	--Altar Procedure
 	c:EnableCounterPermit(COUNTER_RUNIC)
     local lv=c:GetLevel()
-    local e1=Effect.CreateEffect(c)
+	local e1=Effect.CreateEffect(c)
     e1:SetType(EFFECT_TYPE_FIELD)
     e1:SetDescription(1173)
     e1:SetCode(EFFECT_SPSUMMON_PROC)
@@ -85,9 +88,18 @@ function Altar.AddProcedure(c,altercon)
     e1:SetOperation(Altar.Operation(c,lv))
     e1:SetValue(SUMMON_TYPE_ALTAR)
     c:RegisterEffect(e1)
+	--When Altar Summoned, Place Runic Counters
+	local e2=Effect.CreateEffect(c)
+	e2:SetCategory(CATEGORY_COUNTER)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e2:SetLabelObject(e1)
+	e2:SetCondition(Altar.Countercon(c))
+	e2:SetOperation(Altar.Counterop(c))
+	c:RegisterEffect(e2)
 end
 
-function Card.IsCanBeRunicMaterial(c,tp,lv)
+function Card.IsCanBeAltarMaterial(c,tp,lv)
     return c:IsType(TYPE_RUNIC) and c:IsOnField() and c:IsFaceup() and c:IsCanRemoveCounter(tp,COUNTER_RUNIC,lv,REASON_MATERIAL)
 end
 
@@ -96,14 +108,14 @@ function Altar.Condition(ac,lv)
                 if ac==nil then return false end
                 if (ac:IsType(TYPE_PENDULUM) or ac:IsFaceup()) then return false end
                 local tp=ac:GetControler()
-                return Duel.IsExistingMatchingCard(Card.IsCanBeRunicMaterial,tp,LOCATION_MZONE,0,1,ac,tp,lv)
+                return Duel.IsExistingMatchingCard(Card.IsCanBeAltarMaterial,tp,LOCATION_MZONE,0,1,ac,tp,lv)
             end
 end
 
 function Altar.Target(ac,lv)
     return  function(e,tp,eg,ep,ev,re,r,rp)
                 if not ac then return false end
-                local sg=Duel.SelectMatchingCard(tp,Card.IsCanBeRunicMaterial,tp,LOCATION_MZONE,0,1,1,ac,tp,lv)
+                local sg=Duel.SelectMatchingCard(tp,Card.IsCanBeAltarMaterial,tp,LOCATION_MZONE,0,1,1,ac,tp,lv)
                 sg:KeepAlive()
                 e:SetLabelObject(sg)
                 return true
@@ -115,12 +127,25 @@ function Altar.Operation(ac,lv)
                 local sg=e:GetLabelObject()
                 ac:SetMaterial(sg)
                 for tc in aux.Next(sg) do
-                    tc:RemoveCounter(tp,COUNTER_RUNIC,lv,REASON_MATERIAL)
-                    Duel.SendtoGrave(tc,REASON_MATERIAL+REASON_ALTAR)
 					local cc=tc:GetCounter(COUNTER_RUNIC)
+                    tc:RemoveCounter(tp,COUNTER_RUNIC,lv,REASON_MATERIAL)
+					local ce=cc-lv
+					e:SetLabel(ce)
+					Duel.SendtoGrave(tc,REASON_MATERIAL+REASON_ALTAR)
                 end
-				if cc>0 then 
-					ac:AddCounter(COUNTER_RUNIC,cc) end
-                sg:DeleteGroup()
+				sg:DeleteGroup(e,c)
             end
+end
+
+function Altar.Countercon(c)
+	return	function(e,tp,eg,ep,ev,re,r,rp)
+		return e:GetHandler():IsSummonType(SUMMON_TYPE_ALTAR)
+	end
+end
+
+function Altar.Counterop(c)
+	return	function(e,tp,eg,ep,ev,re,r,rp)
+		local ct=e:GetLabelObject():GetLabel()
+		c:AddCounter(COUNTER_RUNIC,ct)
+	end
 end
