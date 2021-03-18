@@ -72,7 +72,7 @@ end
 
 
 
-function Altar.AddProcedure(c,altercon)
+function Altar.AddProcedure(c,altarcon)
 	--Altar Procedure
 	c:EnableCounterPermit(COUNTER_RUNIC)
     local lv=c:GetLevel()
