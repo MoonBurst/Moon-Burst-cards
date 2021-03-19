@@ -41,17 +41,16 @@ CANNOT_BE_ALTER_MATERIAL		=0x43000000
 function Runic.AddProcedure(c,cat,sett,setc,runecon)
 	--Runic Procedure
 	c:EnableCounterPermit(COUNTER_RUNIC)
-	local e1=Effect.CreateEffect(c)
-	if category then e1:SetCategory(cat+CATEGORY_COUNTER)
+	local e1,cc=Effect.CreateEffect(c),1
+	if cat then e1:SetCategory(cat+CATEGORY_COUNTER)
 	else e1:SetCategory(CATEGORY_COUNTER) end
 	e1:SetType(sett+EFFECT_TYPE_TRIGGER_F)
 	e1:SetCode(setc)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCondition(runecon)
-	e1:SetTarget(Runic.Target(c))
-	e1:SetOperation(aux.AND(runeop,Runic.Operation(c)))
-	else e1:SetOperation(Runic.Operation(c))
+	e1:SetTarget(Runic.Target(c,cc))
+	e1:SetOperation(Runic.Operation(c,cc))
 	e1:SetValue(EFFECT_RUNE)
 	c:RegisterEffect(e1)
 end
@@ -60,7 +59,7 @@ function Runic.AddFunProcedure(c,cc,cat,sett,setc,stopt,loc,runecon,runetg,runeo
 	--Runic Procedure
 	c:EnableCounterPermit(COUNTER_RUNIC)
 	local e1=Effect.CreateEffect(c)
-	if category then e1:SetCategory(cat+CATEGORY_COUNTER)
+	if cat then e1:SetCategory(cat+CATEGORY_COUNTER)
 	else e1:SetCategory(CATEGORY_COUNTER) end
 	if stopt==true then e1:SetType(sett+EFFECT_TYPE_TRIGGER_O)
 	else e1:SetType(sett+EFFECT_TYPE_TRIGGER_F) end
@@ -177,7 +176,7 @@ function Altar.Operation(ac,lv)
                 ac:SetMaterial(sg)
                 for tc in aux.Next(sg) do
 					local cc=tc:GetCounter(COUNTER_RUNIC)
-                    tc:RemoveCounter(tp,COUNTER_RUNIC,lv,REASON_MATERIAL)
+                    tc:RemoveCounter(tp,COUNTER_RUNIC,lv,REASON_MATERIAL+REASON_ALTAR)
 					local ce=cc-lv
 					e:SetLabel(ce)
 					Duel.SendtoGrave(tc,REASON_MATERIAL+REASON_ALTAR)
