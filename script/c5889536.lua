@@ -27,7 +27,30 @@ function s.initial_effect(c)
 	e2:SetTarget(s.target)
 	e2:SetOperation(s.operation)
 	c:RegisterEffect(e2)
+	aux.GlobalCheck(s,s.func(e1,c))
 	Duel.AddCustomActivityCounter(id,ACTIVITY_SPSUMMON,s.counterfilter)
+end
+function s.func(ex,c)
+	return function()
+			local ge1=Effect.CreateEffect(c)
+			ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+			ge1:SetCode(EVENT_ADJUST)
+			ge1:SetLabelObject(ex)
+			ge1:SetOperation(s.checkop)
+			Duel.RegisterEffect(ge1,0)
+	end
+end
+function s.checkop(e,tp,eg,ep,ev,re,r,rp)
+	if not e:GetHandler():IsOnField() or not e:GetHandler():IsFaceup() then return end
+	local e1=e:GetLabelObject()
+	e1:Reset()
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetRange(LOCATION_MZONE+LOCATION_SZONE)
+	e1:SetCode(EFFECT_DISABLE_FIELD)
+	e1:SetOperation(s.disop)
+	e:GetHandler():RegisterEffect(e1)
+	e:SetLabelObject(e1)
 end
 --LINK SUMMON
 function s.lcheck(g,lc,sumtype,tp)
@@ -91,7 +114,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 			end
 		end
 		return ct>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and not e:GetHandler():IsForbidden() and Duel.GetMZoneCount(tp,e:GetHandler())>0
-			and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp,ct)
+			and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,nil,e,tp,ct)
 	end
 	Duel.SetGLOperationInfo(e,0,GLCATEGORY_PLACE_SELF_AS_CONTINUOUS_TRAP,e:GetHandler(),1,0,0,LOCATION_MZONE)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_MZONE)
@@ -121,9 +144,9 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 				end
 			end
 		end
-		if ct>0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp,ct) then
+		if ct>0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,nil,e,tp,ct) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-			local tc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp,ct):GetFirst()
+			local tc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,1,nil,e,tp,ct):GetFirst()
 			if tc then
 				Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 			end

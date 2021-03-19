@@ -107,6 +107,16 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 					e1:SetOperation(s.disop)
 					e1:SetReset(RESET_PHASE+PHASE_END)
 					Duel.RegisterEffect(e1,tp)
+					if gc~=c then
+						local e2=Effect.CreateEffect(c)
+						e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+						e2:SetCode(EVENT_PHASE+PHASE_END)
+						e2:SetReset(RESET_PHASE+PHASE_END)
+						e2:SetCountLimit(1)
+						e2:SetLabelObject(gc)
+						e2:SetOperation(s.retop)
+						Duel.RegisterEffect(e2,tp)
+					end
 				end
 			end
 			gc=g:GetNext()
@@ -115,6 +125,12 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.disop(e,tp)
 	return e:GetLabel()
+end
+function s.retop(e,tp,eg,ep,ev,re,r,rp)
+	local gc=e:GetLabelObject()
+	if Duel.GetLocationCount(1-tp,LOCATION_MZONE)<=0 or not Duel.MoveToField(gc,tp,1-tp,LOCATION_MZONE,POS_FACEUP,true) then
+		Duel.SendtoGrave(gc,REASON_EFFECT)
+	end
 end
 
 --DESTROY

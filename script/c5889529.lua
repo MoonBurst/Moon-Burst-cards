@@ -130,7 +130,7 @@ function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,nil,1,tp,LOCATION_GRAVE)
 end
 function s.thfilter(c,tp)
-	return c:GetType()&0x20002==0x20002 and c:IsAbleToHand(c,tp)
+	return c:GetType()&0x20004==0x20004 and c:IsAbleToHand(c,tp)
 end
 function s.rmfilter(c)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToRemove() and (not c:IsLocation(LOCATION_MZONE) or c:IsFaceup())

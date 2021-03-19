@@ -12,7 +12,6 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1:SetCondition(s.xyzcon)
 	e1:SetTarget(s.xyztg)
 	e1:SetOperation(s.xyzop)
 	c:RegisterEffect(e1)
@@ -32,9 +31,6 @@ function s.xyzcheck(g,tp,xyz)
 	return g:GetClassCount(Card.GetAttribute)==#g
 end
 --ATTACH
-function s.xyzcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ)
-end
 function s.xyzfilter(c)
 	return c:IsFaceup() and c:GetType()&0x20004==0x20004
 end
@@ -128,11 +124,11 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 			Duel.Hint(HINT_ZONE,tp,dis)
 			local e1=Effect.CreateEffect(c)
 			e1:SetType(EFFECT_TYPE_FIELD)
-			e1:SetRange(LOCATION_MZONE)
+			e1:SetRange(LOCATION_ONFIELD)
 			e1:SetCode(EFFECT_DISABLE_FIELD)
-			e1:SetOperation(s.disop)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+			e1:SetReset(RESET_EVENT+(RESETS_STANDARD_DISABLE&(~RESET_TOFIELD)))
 			e1:SetLabel(dis)
+			e1:SetOperation(s.disop)
 			e:GetHandler():RegisterEffect(e1)
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 			local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
