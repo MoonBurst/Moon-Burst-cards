@@ -1,5 +1,4 @@
 --Light Bringer Green
---by King Of Justice
 local s,id=GetID()
 function s.initial_effect(c)
 	--search
@@ -53,7 +52,7 @@ end
 function s.lkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local rc=c:GetReasonCard()
-    --Cannot be destroyed by card effects
+	--Cannot be destroyed by card effects
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(1558)
 	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)

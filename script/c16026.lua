@@ -1,5 +1,4 @@
 --Light Bringer Kaito
---by King Of Justice
 local s,id=GetID()
 function s.initial_effect(c)
 	--link summon
@@ -97,6 +96,7 @@ function s.lkcon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsLocation(LOCATION_GRAVE) and c:IsPreviousLocation(LOCATION_ONFIELD) and r==REASON_LINK and c:GetReasonCard():IsSetCard(0x616)
 end
 function s.lkop(e,tp,eg,ep,ev,re,r,rp)
+    --Cannot be destroyed by battle
 	local c=e:GetHandler()
 	local rc=c:GetReasonCard()
 	local e1=Effect.CreateEffect(c)
@@ -115,7 +115,7 @@ end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==1 then
-	--Banish it when it leaves the field
+	    --Banish it when it leaves the field
 		local e1=Effect.CreateEffect(c)
 		e1:SetDescription(1558)
 		e1:SetType(EFFECT_TYPE_SINGLE)
