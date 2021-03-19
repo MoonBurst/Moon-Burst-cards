@@ -94,7 +94,7 @@ function s.zntg(e,tp,eg,ep,ev,re,r,rp,chk)
 		if Duel.GetLocationCount(tp,LOCATION_MZONE,PLAYER_NONE,LOCATION_REASON_COUNT)<=0 or Duel.GetLocationCount(1-tp,LOCATION_MZONE,PLAYER_NONE,LOCATION_REASON_COUNT)<=0 then return false end
 		local check=false
 		for i=0,4 do
-			if Duel.CheckLocation(tp,LOCATION_MZONE,i) and Duel.CheckLocation(1-tp,LOCATION_MZONE,i) then
+			if Duel.CheckLocation(tp,LOCATION_MZONE,i) and Duel.CheckLocation(1-tp,LOCATION_MZONE,4-i) then
 				check=true
 				break
 			end
@@ -103,7 +103,7 @@ function s.zntg(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	local zone=0
 	for i=0,4 do
-		if Duel.CheckLocation(tp,LOCATION_MZONE,i) and Duel.CheckLocation(1-tp,LOCATION_MZONE,i) then
+		if Duel.CheckLocation(tp,LOCATION_MZONE,i) and Duel.CheckLocation(1-tp,LOCATION_MZONE,4-i) then
 			zone=zone|(0x1<<i)
 		end
 	end
