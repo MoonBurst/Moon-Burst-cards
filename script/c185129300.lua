@@ -63,8 +63,8 @@ function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
-	if g:GetClassCount(Card.GetCode)>=8 then
-		local sg=Duel.SelectMatchingCard(tp,aux.AND(aux.dncheck,s.tgfilter),tp,LOCATION_DECK,0,8,8,nil)
+	if #g>=8 and g:GetClassCount(Card.GetCode)>=8 then
+		local sg=aux.SelectUnselectGroup(g,e,tp,8,8,aux.dncheck,1,tp,HINTMSG_TOGRAVE)
 		Duel.SendtoGrave(sg,REASON_EFFECT)
 	end
 end
