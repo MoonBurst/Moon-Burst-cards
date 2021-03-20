@@ -11,22 +11,30 @@ function s.initial_effect(c)
 	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_DUEL)
 	e1:SetCondition(s.spcon)
 	c:RegisterEffect(e1)
+	local e2=e1:Clone()
+	e1:SetCondition(s.spcon2)
+	e1:SetValue(s.spval)
+	
 	
 	--search
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,0))
-	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_SUMMON_SUCCESS)
-	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
-	e2:SetCountLimit(1,id)
-	e2:SetTarget(s.tg)
-	e2:SetOperation(s.op)
-	c:RegisterEffect(e2)
-	
-	local e3=e2:Clone()
-	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetCode(EVENT_SUMMON_SUCCESS)
+	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
+	e3:SetCountLimit(1,id)
+	e3:SetTarget(s.tg)
+	e3:SetOperation(s.op)
 	c:RegisterEffect(e3)
+	
+	local e4=e3:Clone()
+	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
+	c:RegisterEffect(e4)
+	
+	local e4=e1:Clone()
+	e4:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
+	c:RegisterEffect(e4)
 	
 	--special summon to a "Light Bringer" link zone
 end
@@ -36,6 +44,16 @@ function s.spcon(e,c)
 	if c==nil then return true end
 	return Duel.GetFieldGroupCount(c:GetControler(),LOCATION_MZONE,0) ==0
 		and Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0 and Duel.GetLocationCount(c:GetControler(),LOCATION_EXTRA)>=0
+end
+
+function s.spcon2(e,c)
+	if c==nil then return true end
+	local tp=e:GetHandlerPlayer()
+	local zone=Duel.GetLinkedZone(tp)&0x1f
+	return zone~=0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE,tp,zone)
+end
+function s.spval(e,c)
+	return 0,Duel.GetLinkedZone(c:GetControler())&0x1f
 end
 
 function s.filter(c)
