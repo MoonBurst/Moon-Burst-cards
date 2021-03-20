@@ -36,10 +36,10 @@ function s.initial_effect(c)
 	--Duel.IsExistingMatchingCard(Card.IsPosition,tp,LOCATION_MZONE,0,2,nil,POS_FACEUP_DEFENSE)
 	
 function s.cfilter(c)
-	return c:IsSetCard(0x616) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeckAsCost() and (c:IsLocation(LOCATION_HAND) or c:IsFaceup())
+	return c:IsSetCard(0x616) and c:IsType(TYPE_MONSTER+TYPE_SPELL) and c:IsAbleToDeckAsCost() and (c:IsLocation(LOCATION_HAND) or c:IsFaceup())
 end
 function s.thfilter(c)
-	return c:IsSetCard(0x616) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand() or c:IsCode(21251800) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
+	return c:IsSetCard(0x616) and c:IsType(TYPE_MONSTER+TYPE_SPELL) and c:IsAbleToHand() or c:IsCode(21251800) and c:IsType(TYPE_MONSTER+TYPE_SPELL) and c:IsAbleToHand()
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,e:GetHandler()) end
