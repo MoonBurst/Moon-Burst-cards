@@ -91,7 +91,7 @@ end
 
 
 
-function Altar.AddProcedure(c,altarcon)
+function Altar.AddProcedure(c,amat,altarcon)
 	--Altar Procedure
 	c:EnableCounterPermit(COUNTER_RUNIC)
     local lv=c:GetLevel()
@@ -101,8 +101,8 @@ function Altar.AddProcedure(c,altarcon)
     e1:SetCode(EFFECT_SPSUMMON_PROC)
     e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
     e1:SetRange(LOCATION_DECK)
-    if altarcon then e1:SetCondition(aux.AND(altarcon,Altar.Condition(c,lv)))
-	else e1:SetCondition(Altar.Condition(c,lv)) end
+    if altarcon then e1:SetCondition(aux.AND(altarcon,Altar.Condition(c,lv,amat)))
+	else e1:SetCondition(Altar.Condition(c,lv,amat)) end
     e1:SetTarget(Altar.Target(c,lv))
     e1:SetOperation(Altar.Operation(c,lv))
     e1:SetValue(SUMMON_TYPE_ALTAR)
@@ -150,19 +150,19 @@ function Card.IsCanBeAltarMaterial(c,tp,lv)
     return c:IsType(TYPE_RUNIC) and c:IsOnField() and c:IsFaceup() and c:IsCanRemoveCounter(tp,COUNTER_RUNIC,lv,REASON_MATERIAL)
 end
 
-function Altar.Condition(ac,lv)
+function Altar.Condition(ac,lv,amat)
     return    function(e,tp,eg,ep,ev,re,r,rp)
                 if ac==nil then return false end
                 if (ac:IsType(TYPE_PENDULUM) or ac:IsFaceup()) then return false end
                 local tp=ac:GetControler()
-                return Duel.IsExistingMatchingCard(Card.IsCanBeAltarMaterial,tp,LOCATION_MZONE,0,1,ac,tp,lv)
+                return Duel.IsExistingMatchingCard(aux.AND(Card.IsCanBeAltarMaterial,amat),tp,LOCATION_MZONE,0,1,ac,tp,lv)
             end
 end
 
-function Altar.Target(ac,lv)
+function Altar.Target(ac,lv,amat)
     return  function(e,tp,eg,ep,ev,re,r,rp)
                 if not ac then return false end
-                local sg=Duel.SelectMatchingCard(tp,Card.IsCanBeAltarMaterial,tp,LOCATION_MZONE,0,1,1,ac,tp,lv)
+                local sg=Duel.SelectMatchingCard(tp,aux.AND(Card.IsCanBeAltarMaterial,amat),tp,LOCATION_MZONE,0,1,1,ac,tp,lv)
                 sg:KeepAlive()
                 e:SetLabelObject(sg)
                 return true
