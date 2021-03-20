@@ -59,14 +59,20 @@ function s.initial_effect(c)
 	e7:SetOperation(s.activate)
 	c:RegisterEffect(e7)
 	
-	--negate
-	--local e8=Effect.CreateEffect(c)
-	--e8:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	--e8:SetCode(EVENT_ATTACK_ANNOUNCE)
-	--e8:SetRange(LOCATION_FZONE)
-	--e8:SetCondition(s.discon)
-	--e8:SetOperation(s.disop)
-	--c:RegisterEffect(e8)
+	--Negate opponent's target effect
+	local e9=Effect.CreateEffect(c)
+	--e8:SetDescription(aux.Stringid(id,0))
+	e9:SetCategory(CATEGORY_DISABLE)--+CATEGORY_DESTROY)
+	e9:SetType(EFFECT_TYPE_QUICK_O)
+	e9:SetCode(EVENT_CHAINING)
+	e9:SetRange(LOCATION_FZONE)
+	e9:SetCountLimit(1,id)
+	e9:SetCondition(s.negcon)
+	e9:SetTarget(s.negtg)
+	e9:SetOperation(s.negop)
+	c:RegisterEffect(e9)
+	
+	
 	
 end
 	
@@ -102,26 +108,27 @@ end
 
 --------------------------------------------------------------------------------
 
---function s.discon(e,tp,eg,ep,ev,re,r,rp)
-	-- a=Duel.GetAttacker()
-	--local at=Duel.GetAttackTarget()
-	--return at and a:IsCode(21251800)
---end
---function s.disop(e,tp,eg,ep,ev,re,r,rp)
-	--local tc=Duel.GetAttackTarget()
-	--local e1=Effect.CreateEffect(e:GetHandler())
-	--e1:SetType(EFFECT_TYPE_SINGLE)
-	--e1:SetCode(EFFECT_DISABLE)
-	--e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_BATTLE)
-	--tc:RegisterEffect(e1)
-	--local e2=Effect.CreateEffect(e:GetHandler())
-	--e2:SetType(EFFECT_TYPE_SINGLE)
-	--e2:SetCode(EFFECT_DISABLE_EFFECT)
-	--e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_BATTLE)
-	--tc:RegisterEffect(e2)
---end
+function s.negfilter(c,tp)
+	return c:IsControler(tp) and c:IsFaceup()
+end
 
+function s.negcon(e,tp,eg,ep,ev,re,r,rp)
+	if not (rp==1-tp and re:IsHasProperty(EFFECT_FLAG_CARD_TARGET)) then return false end
+	local g=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
+	return g and g:IsExists(s.negfilter,1,nil,tp) and Duel.IsChainDisablable(ev) and re:IsActiveType(TYPE_MONSTER+TYPE_SPELL+TYPE_TRAP)
+		and Duel.IsExistingMatchingCard(aux.FilterFaceupFunction(Card.IsSetCard,0x616),tp,LOCATION_ONFIELD,0,1,nil)
+end
 
+function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return not re:GetHandler():IsStatus(STATUS_DISABLED) end
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
+end
+
+function s.negop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.NegateEffect(ev) if Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,nil) then
+		Duel.Remove(eg,POS_FACEUP,REASON_EFFECT)
+	end
+end
 
 
 
