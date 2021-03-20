@@ -38,12 +38,11 @@ CANNOT_BE_ALTER_MATERIAL		=0x43000000
 --runecon - condition for rune
 --runetg - target for rune (if none then put 'nil')
 --runeop - operation for rune (if none then put 'nil')
-function Runic.AddProcedure(c,cat,sett,setc,runecon)
+function Runic.AddProcedure(c,sett,setc,runecon)
 	--Runic Procedure
 	c:EnableCounterPermit(COUNTER_RUNIC)
 	local e1,cc=Effect.CreateEffect(c),1
-	if cat then e1:SetCategory(cat+CATEGORY_COUNTER)
-	else e1:SetCategory(CATEGORY_COUNTER) end
+	e1:SetCategory(CATEGORY_COUNTER)
 	e1:SetType(sett+EFFECT_TYPE_TRIGGER_F)
 	e1:SetCode(setc)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
