@@ -40,15 +40,8 @@ function s.cfilter(c,ft,tp)
 	return c:IsRace(RACE_FAIRY) and (ft>0 or (c:GetSequence()<5 and c:IsControler(tp))) and (c:IsFaceup(0x616) or c:IsControler(tp))
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	e:SetLabel(1)
-	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	local c=e:GetHandler()
-	if c:GetSequence()<5 then ft=ft+1 end
-	if chk==0 then return ft>-1 and c:IsReleasable() and Duel.CheckReleaseGroupCost(tp,s.cfilter,1,false,nil,c,ft,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local rg=Duel.SelectReleaseGroupCost(tp,s.cfilter,1,1,false,nil,c,ft,tp)
-	rg:AddCard(c)
-	Duel.Release(rg,REASON_COST)
+	if chk==0 then return e:GetHandler():IsReleasable() end
+	Duel.Release(e:GetHandler(),REASON_COST)
 end
 function s.dfilter(c,e,tp)
 	return c:IsCode(21251800) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
