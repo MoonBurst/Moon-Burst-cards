@@ -53,7 +53,7 @@ end
 
 --Send 8 "Relic Saint" Traps to the GY
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ)
+	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ) and Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,8,nil)
 end
 function s.tgfilter(c)
 	return c:IsSetCard(0x1145) and c:GetType()==TYPE_TRAP+TYPE_CONTINUOUS and c:IsAbleToGrave()
