@@ -23,17 +23,18 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE)
 	e3:SetCode(EFFECT_CANNOT_ATTACK)
 	c:RegisterEffect(e3)
-	--Opponent new hand
-	local e4=Effect.CreateEffect(c)
-	e4:SetCategory(CATEGORY_TODECK+CATEGORY_DRAW)
-	e4:SetType(EFFECT_TYPE_QUICK_O)
-	e4:SetCode(EVENT_FREE_CHAIN)
-	e4:SetRange(LOCATION_GRAVE)
-	e4:SetCountLimit(1,id)
-	e4:SetCost(aux.bfgcost)
-	e4:SetTarget(s.target)
-	e4:SetOperation(s.activate)
-	c:RegisterEffect(e4)
+	-- GY effect
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCategory(CATEGORY_DECKDES)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetCode(EVENT_PHASE+PHASE_END)
+	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCountLimit(1)
+	e2:SetCost(s.scost)
+	e2:SetTarget(s.stg)
+	e2:SetOperation(s.sop)
+	c:RegisterEffect(e2)
 end
 --Summon conditions
 function s.ffilter(c)
@@ -47,6 +48,9 @@ function s.contactfil(tp)
 end
 function s.contactop(g)
 	Duel.SendtoGrave(g,REASON_COST+REASON_MATERIAL)
+end
+function s.pendfilter(c,tpe)
+	return c:IsType(TYPE_PENDULUM) and c:IsType(TYPE_MONSTER)
 end
 --On summon effect
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -71,18 +75,21 @@ local c=e:GetHandler()
 		c:RegisterEffect(e2)
 	end
 end
---opponent reload
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsPlayerCanDraw(1-tp)
-		and Duel.IsExistingMatchingCard(Card.IsAbleToDeck,tp,0,LOCATION_HAND,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,1-tp,LOCATION_HAND)
+--GY effect
+function s.scost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsPlayerCanDiscardDeckAsCost(tp,1) and Duel.IsExistingMatchingCard(s.pendfilter,tp,LOCATION_GRAVE,0,1,nil,tpe) end
+	Duel.DiscardDeck(tp,1,REASON_COST)
 end
-function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetFieldGroup(tp,0,LOCATION_HAND)
-	if #g==0 then return end
-	Duel.SendtoDeck(g,nil,2,REASON_EFFECT)
-	Duel.ShuffleDeck(1-tp)
-	Duel.BreakEffect()
-	Duel.Draw(1-tp,#g,REASON_EFFECT)
+function s.stg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local tpe=e:GetLabel()
+	if chk==0 then return Duel.IsExistingMatchingCard(s.pendfilter,tp,LOCATION_GRAVE,0,1,nil,tpe) end
+	Duel.SetOperationInfo(0,CATEGORY_TOEXTRA,nil,1,tp,LOCATION_GRAVE)
 end
-
+function s.sop(e,tp,eg,ep,ev,re,r,rp)
+	local tpe=e:GetLabel()
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
+	local g=Duel.SelectMatchingCard(tp,s.pendfilter,tp,LOCATION_GRAVE,0,1,1,nil,tpe)
+	if g:GetCount()>0 then
+	Duel.SendtoExtraP(g,nil,REASON_EFFECT)
+end
+end
