@@ -52,7 +52,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e5)
 end
 function s.xyzcheck(g)
-	return g:IsExists(Card.IsSetCard,1,nil,0x1145)
+	return g:IsExists(s.matfilter,1,nil,nil)
+end
+function s.matfilter(c)
+	return c:IsSetCard(0x1145) and c:IsAttribute(ATTRIBUTE_DARK)
 end
 --stats up
 function s.atkfilter(c)
