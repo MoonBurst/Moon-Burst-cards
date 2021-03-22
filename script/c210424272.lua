@@ -1,15 +1,8 @@
 --Moon Burst: The Bad Dream
-local function getID()
-	local str=string.match(debug.getinfo(2,'S')['source'],"c%d+%.lua")
-	str=string.sub(str,1,string.len(str)-4)
-	local cod=_G[str]
-	local id=tonumber(string.sub(str,2))
-	return id,cod
-end
-local id,cid=getID()
-function cid.initial_effect(c)
+local s,id=GetID()
+function s.initial_effect(c)
 	--link summon
-	Link.AddProcedure(c,cid.lfilter,1,1)
+	Link.AddProcedure(c,s.lfilter,1,1)
 	c:EnableReviveLimit()
 	--special summon
 	local e1=Effect.CreateEffect(c)
@@ -18,9 +11,9 @@ function cid.initial_effect(c)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
 	e1:SetCountLimit(1,id)
-	e1:SetCondition(cid.spcon)
-	e1:SetTarget(cid.sptg)
-	e1:SetOperation(cid.spop)
+	e1:SetCondition(s.spcon)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
 	--send to deck, draw 1
 --	local e3=Effect.CreateEffect(c)
@@ -30,19 +23,19 @@ function cid.initial_effect(c)
 --	e3:SetRange(LOCATION_MZONE)
 --	e3:SetCode(EVENT_BECOME_TARGET)
 --	e3:SetCountLimit(1,id+100)
---	e3:SetCondition(cid.betarget)
---	e3:SetTarget(cid.drawtg)
---	e3:SetOperation(cid.drawop)
+--	e3:SetCondition(s.betarget)
+--	e3:SetTarget(s.drawtg)
+--	e3:SetOperation(s.drawop)
 --	c:RegisterEffect(e3)
 end
-function cid.betarget(e,tp,eg,ep,ev,re,r,rp)
+function s.betarget(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsContains(e:GetHandler())
 end
-function cid.drawtg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.drawtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToHand() end
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,e:GetHandler(),1,0,0)
 end
-function cid.drawop(e,tp,eg,ep,ev,re,r,rp)
+function s.drawop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) and Duel.SendtoHand(c,nil,REASON_EFFECT) then
 	Duel.IsPlayerCanDraw(tp,1) end
@@ -52,20 +45,20 @@ function cid.drawop(e,tp,eg,ep,ev,re,r,rp)
 	p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Draw(p,d,REASON_EFFECT) 
 end
-function cid.lfilter(c)
+function s.lfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x666) and not c:IsCode(210424272)
 end
-function cid.spcon(e,tp,eg,ep,ev,re,r,rp)
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
 end
-function cid.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp)
-	and Duel.IsExistingMatchingCard(cid.IsAbleToDeck,tp,LOCATION_HAND,0,1,e:GetHandler()) end
+	and Duel.IsExistingMatchingCard(s.IsAbleToDeck,tp,LOCATION_HAND,0,1,e:GetHandler()) end
 	Duel.SetTargetPlayer(tp)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_HAND)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
 end
-function cid.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
 	local g=Duel.GetFieldGroup(p,LOCATION_HAND,0)
 	if g:GetCount()==0 then return end

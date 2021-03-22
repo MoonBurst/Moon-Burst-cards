@@ -1,13 +1,6 @@
 --Moon Burst's Big Bang
-local function getID()
-	local str=string.match(debug.getinfo(2,'S')['source'],"c%d+%.lua")
-	str=string.sub(str,1,string.len(str)-4)
-	local cod=_G[str]
-	local id=tonumber(string.sub(str,2))
-	return id,cod
-end
-local id,cid=getID()
-function cid.initial_effect(c)
+local s,id=GetID()
+function s.initial_effect(c)
 	c:SetUniqueOnField(1,0,id)
 	c:EnableCounterPermit(0xc)
 	c:SetCounterLimit(0xc,5)
@@ -22,8 +15,8 @@ function cid.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
 	e2:SetCode(EVENT_BECOME_TARGET)
 	e2:SetRange(LOCATION_SZONE)
-	e2:SetCondition(cid.accon)
-	e2:SetOperation(cid.acop)
+	e2:SetCondition(s.accon)
+	e2:SetOperation(s.acop)
 	c:RegisterEffect(e2)
 	--destroy&damage
 	local e3=Effect.CreateEffect(c)
@@ -32,9 +25,9 @@ function cid.initial_effect(c)
 	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetCode(EVENT_CUSTOM+id)
-	e3:SetCost(cid.descost)
-	e3:SetTarget(cid.destg)
-	e3:SetOperation(cid.desop)
+	e3:SetCost(s.descost)
+	e3:SetTarget(s.destg)
+	e3:SetOperation(s.desop)
 	c:RegisterEffect(e3)
 	--atkup
 	local e4=Effect.CreateEffect(c)
@@ -42,18 +35,18 @@ function cid.initial_effect(c)
 	e4:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
 	e4:SetRange(LOCATION_SZONE)
 	e4:SetTargetRange(LOCATION_MZONE,0)
-	e4:SetCondition(cid.battlecon)
-	e4:SetTarget(cid.tg1)
-	e4:SetOperation(cid.atkop)
+	e4:SetCondition(s.battlecon)
+	e4:SetTarget(s.tg1)
+	e4:SetOperation(s.atkop)
 	c:RegisterEffect(e4)
 	end
-function cid.battlecon(e,tp,eg,ep,ev,re,r,rp)
+function s.battlecon(e,tp,eg,ep,ev,re,r,rp)
 	local a=Duel.GetAttacker()
 	local d=Duel.GetAttackTarget()
 	return d~=nil and d:IsFaceup() and ((a:GetControler()==tp and a:IsSetCard(0x666) and a:IsRelateToBattle() and a:GetAttack()<d:GetAttack())
 		or (d:GetControler()==tp and d:IsSetCard(0x666) and d:IsRelateToBattle() and d:GetAttack()<a:GetAttack()))
 end
-function cid.tg1(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.tg1(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		local tc=Duel.GetAttacker()
 	local bc=Duel.GetAttackTarget()
 	if not bc then return false end
@@ -61,7 +54,7 @@ function cid.tg1(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	e:SetLabelObject(bc)
 	return bc:IsFaceup() and bc:IsSetCard(0x666)
 end
-function cid.atkop(e,tp,eg,ep,ev,re,r,rp)
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local a=Duel.GetAttacker()
 	local d=Duel.GetAttackTarget()
 	if not a:IsRelateToBattle() or a:IsFacedown() or not d:IsRelateToBattle() or d:IsFacedown() then return end
@@ -77,23 +70,23 @@ function cid.atkop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetValue(800)
 	a:RegisterEffect(e1)
 end
-function cid.ctop2(e,tp,eg,ep,ev,re,r,rp)
+function s.ctop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local ct=c:GetCounter(0xc)
 	c:RemoveCounter(tp,0xc,ct,REASON_EFFECT) 
 end
-function cid.descost(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.descost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler() and e:GetHandler():GetCounter(0xc)==5 end 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	e:GetHandler():RemoveCounter(tp,0xc,5,REASON_COST)
 end
-function cid.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:GetLocation()==LOCATION_ONFIELD end
 	if chk==0 then return Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
 	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
-function cid.desop(e,tp,eg,ep,ev,re,r,rp)
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
@@ -103,15 +96,15 @@ function cid.desop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Destroy(g,REASON_EFFECT)
 	end
 end
-function cid.filter(c,tp)
+function s.filter(c,tp)
 	return c:IsFaceup() and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:IsSetCard(0x666)
 end
-function cid.accon(e,tp,eg,ep,ev,re,r,rp)
+function s.accon(e,tp,eg,ep,ev,re,r,rp)
 	if not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return false end
 	local g=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
-	return g and g:IsExists(cid.filter,1,nil,tp)
+	return g and g:IsExists(s.filter,1,nil,tp)
 end
-function cid.acop(e,tp,eg,ep,ev,re,r,rp)
+function s.acop(e,tp,eg,ep,ev,re,r,rp)
 local c=e:GetHandler()
 	e:GetHandler() c:AddCounter(0xc,1)
 	if c:GetCounter(0xc)==5 then
