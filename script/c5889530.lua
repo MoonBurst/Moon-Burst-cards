@@ -25,9 +25,14 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_ACTIVATE)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetCountLimit(1,id+100)
+	e2:SetCost(s.zncost)
 	e2:SetTarget(s.zntg)
 	e2:SetOperation(s.znop)
 	c:RegisterEffect(e2)
+	Duel.AddCustomActivityCounter(id,ACTIVITY_SPSUMMON,s.counterfilter)
+end
+function s.counterfilter(c)
+	return c:IsRace(RACE_BEAST)
 end
 --SEARCH
 function s.drawcon(e,tp,eg,ep,ev,re,r,rp)
@@ -73,6 +78,21 @@ function s.drawop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 --DISABLE ZONE
+function s.zncost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetCustomActivityCount(id,tp,ACTIVITY_SPSUMMON)==0 end
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetDescription(aux.Stringid(id,3))
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH+EFFECT_FLAG_CLIENT_HINT)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	e1:SetTargetRange(1,0)
+	e1:SetTarget(s.splimit)
+	Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(e,c,sump,sumtype,sumpos,targetp,se)
+	return not s.counterfilter(c)
+end
 function s.pcfilter(c,e,tp,ct)
 	return c:IsType(TYPE_MONSTER) and c:IsRace(RACE_BEAST) and ((c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0) or not c:IsForbidden() and ct>0)
 end
