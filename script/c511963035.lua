@@ -66,6 +66,17 @@ function s.initial_effect(c)
 	e6:SetOperation(s.negop)
 	c:RegisterEffect(e6,false,REGISTER_FLAG_DETACH_XMAT)
 	
+	--Your Opponent cannot activate any effects when this card attacks
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_FIELD)
+	e7:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e7:SetCode(EFFECT_CANNOT_ACTIVATE)
+	e7:SetRange(LOCATION_MZONE)
+	e7:SetTargetRange(0,1)
+	e7:SetValue(s.aclimit)
+	e7:SetCondition(s.actcon)
+	c:RegisterEffect(e7)
+	
 end
 
 s.listed_series={0x196}
@@ -154,3 +165,14 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 		tc:RegisterEffect(e3)
 	end
 end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function s.aclimit(e,re,tp)
+	return (re:IsHasType(EFFECT_TYPE_ACTIVATE) or re:IsActiveType(TYPE_MONSTER))  
+end
+
+function s.actcon(e)
+	return Duel.GetAttacker()==e:GetHandler()
+end
+
