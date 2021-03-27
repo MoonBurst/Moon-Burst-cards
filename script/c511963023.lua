@@ -89,7 +89,7 @@ function s.atkfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x196)
 end
 function s.value(e,c)
-	return Duel.GetMatchingGroupCount(s.atkfilter,c:GetControler(),LOCATION_GRAVE,0,nil)*300
+	return Duel.GetMatchingGroupCount(s.atkfilter,c:GetControler(),LOCATION_GRAVE,0,nil)*500
 end
 function s.sprcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsReason(REASON_DESTROY)
