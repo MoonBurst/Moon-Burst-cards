@@ -121,6 +121,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsOnField() and c:IsPreviousLocation(LOCATION_MZONE) and c:GetPreviousSequence()<5 then
 		local zone=0x1<<c:GetPreviousSequence()
+		if not Duel.CheckLocation(c:GetPreviousControler(),LOCATION_MZONE,c:GetPreviousSequence()) or Duel.IsExistingMatchingCard(s.zcheck0,tp,LOCATION_MZONE,0,1,nil,zone,tp) then return end
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_FIELD)
 		e1:SetCode(EFFECT_DISABLE_FIELD)
@@ -129,6 +130,9 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_PHASE+PHASE_END)
 		Duel.RegisterEffect(e1,tp)
 	end
+end
+function s.zcheck0(c,zone,tp)
+	return aux.IsZone(c,zone,tp)
 end
 function s.disop(e,tp)
 	return e:GetLabel()
