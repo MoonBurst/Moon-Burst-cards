@@ -32,28 +32,34 @@ function s.initial_effect(c)
     e4:SetRange(LOCATION_MZONE)
     e4:SetCode(EFFECT_CANNOT_CHANGE_CONTROL)
     c:RegisterEffect(e4)
-    --material
+    --spsummon
 	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_IGNITION)
-	e5:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e5:SetRange(LOCATION_MZONE)
-	e5:SetCountLimit(1)
-	e5:SetTarget(s.target)
-	e5:SetOperation(s.operation)
+	e5:SetDescription(aux.Stringid(id,0))
+	e5:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_RECOVER)
+	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e5:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
+	e5:SetCode(EVENT_TO_GRAVE)
+	e5:SetCondition(s.spcon)
+	e5:SetTarget(s.sptg)
+	e5:SetOperation(s.spop)
 	c:RegisterEffect(e5)
-	--negate
+	--material
 	local e6=Effect.CreateEffect(c)
-	e6:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
-	e6:SetType(EFFECT_TYPE_QUICK_O)
-	e6:SetCode(EVENT_CHAINING)
-	e6:SetCountLimit(1)
-	e6:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e6:SetDescription(aux.Stringid(id,1))
+	e6:SetType(EFFECT_TYPE_IGNITION)
 	e6:SetRange(LOCATION_MZONE)
-	e6:SetCondition(s.discon)
-	e6:SetCost(s.discost)
-	e6:SetTarget(s.distg)
-	e6:SetOperation(s.disop)
-	c:RegisterEffect(e6,false,REGISTER_FLAG_DETACH_XMAT)
+	e6:SetCountLimit(1)
+	e6:SetTarget(s.target)
+	e6:SetOperation(s.operation)
+	c:RegisterEffect(e6)
+	--atk
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_SINGLE)
+	e7:SetCode(EFFECT_UPDATE_ATTACK)
+	e7:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e7:SetRange(LOCATION_MZONE)
+	e7:SetValue(s.atkval)
+	c:RegisterEffect(e7)
 end
 s.listed_series={0x196}
 function s.valcheck(e,c)
@@ -91,21 +97,19 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
-function s.filter(c,tp)
-	return c:IsPosition(POS_FACEUP_ATTACK) and not c:IsType(TYPE_TOKEN)
-		and (c:IsControler(tp) or c:IsAbleToChangeControler())
+function s.filter(c)
+	return not c:IsType(TYPE_TOKEN) and c:IsAbleToChangeControler()
 end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc,tp) and chkc~=e:GetHandler() end
-	if chk==0 then return e:GetHandler():IsType(TYPE_XYZ)
-		and Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,e:GetHandler(),tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,e:GetHandler(),tp)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsType(TYPE_XYZ) 
+		and Duel.IsExistingMatchingCard(s.filter,tp,0,LOCATION_MZONE,1,nil) end
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local tc=Duel.GetFirstTarget()
-	if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
+	if not c:IsRelateToEffect(e) then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_OPPO)
+	local tc=Duel.SelectMatchingCard(tp,s.filter,tp,0,LOCATION_MZONE,1,1,nil):GetFirst()
+	if tc and not tc:IsImmuneToEffect(e) then
 		local og=tc:GetOverlayGroup()
 		if #og>0 then
 			Duel.SendtoGrave(og,REASON_RULE)
@@ -113,22 +117,25 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Overlay(c,Group.FromCards(tc))
 	end
 end
-function s.discon(e,tp,eg,ep,ev,re,r,rp)
-	return not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) and Duel.IsChainNegatable(ev)
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return c:IsReason(REASON_DESTROY) and c:IsPreviousLocation(LOCATION_MZONE) and c:GetOverlayCount()>0
 end
-function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-end
-function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
-	if re:GetHandler():IsRelateToEffect(re) and re:GetHandler():IsDestructable() then
-		Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
+	local rec=e:GetHandler():GetTextAttack()
+	Duel.SetTargetPlayer(tp)
+	Duel.SetTargetParam(rec)
+	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,tp,rec)
+end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)>0 then
+		local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
+		Duel.Recover(p,d,REASON_EFFECT)
 	end
 end
-function s.disop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
-		Duel.Destroy(eg,REASON_EFFECT)
-	end
+function s.atkval(e,c)
+	return c:GetOverlayCount()*500
 end
