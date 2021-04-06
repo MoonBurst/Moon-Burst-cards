@@ -3,7 +3,7 @@ local s,id,alias=GetID()
 function s.initial_effect(c)
 	alias=c:GetOriginalCodeRule()
 	--xyz summon
-	Xyz.AddProcedure(c,nil,4,2,nil,nil,nil,nil,false,s.xyzcheck)
+	Xyz.AddProcedure(c,nil,4,2)
 	c:EnableReviveLimit()
 	--destroy
 	local e1=Effect.CreateEffect(c)
@@ -12,11 +12,11 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetCountLimit(1,alias)
+	e1:SetCountLimit(1,id)
 	e1:SetCost(s.cost)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
-	c:RegisterEffect(e1,false,REGISTER_FLAG_DETACH_XMAT)
+	c:RegisterEffect(e1)
 	--draw
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(61344030,1))
@@ -37,13 +37,6 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 s.listed_series={0x196}
-function s.xyzfilter(c,xyz,tp)
-	return c:IsAttribute(ATTRIBUTE_DARK,xyz,SUMMON_TYPE_XYZ,tp)
-end
-function s.xyzcheck(g,tp,xyz)
-	local mg=g:Filter(function(c) return not c:IsHasEffect(511001175) end,nil)
-	return mg:IsExists(s.xyzfilter,1,nil,xyz,tp)
-end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
 	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)

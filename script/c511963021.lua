@@ -1,4 +1,4 @@
---Gunman Girl
+--Night Gunman 
 local s,id=GetID()
 function s.initial_effect(c)
     --search
@@ -26,6 +26,14 @@ function s.initial_effect(c)
 	e4:SetRange(LOCATION_HAND)
 	e4:SetCondition(s.spcon)
 	c:RegisterEffect(e4)
+	--tuner
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,0))
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetRange(LOCATION_MZONE)
+	e5:SetCountLimit(1)
+	e5:SetOperation(s.operation)
+	c:RegisterEffect(e5)
 end
 s.listed_names={0x196}
 function s.thfilter(c)
@@ -51,3 +59,13 @@ function s.spcon(e,c)
 	return Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0
 		and Duel.IsExistingMatchingCard(s.cfilter,c:GetControler(),LOCATION_MZONE,0,1,nil)
 end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_SINGLE)
+	e5:SetCode(EFFECT_ADD_TYPE)
+	e5:SetValue(TYPE_TUNER)
+	e5:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+	c:RegisterEffect(e5)
+end
+
