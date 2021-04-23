@@ -72,11 +72,23 @@ function s.initial_effect(c)
 	local e7=Effect.CreateEffect(c)
 	e7:SetDescription(aux.Stringid(id,2))
 	e7:SetCategory(CATEGORY_DESTROY)
-	e7:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e7:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e7:SetCode(EVENT_BATTLE_START)
 	e7:SetTarget(s.destarget)
 	e7:SetOperation(s.desoperation)
 	c:RegisterEffect(e7)
+	
+	--Special Summon 1 "Poltergeist" Monster From Your Graveyard
+	local e8=Effect.CreateEffect(c)
+	e8:SetDescription(aux.Stringid(id,3))
+	e8:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e8:SetType(EFFECT_TYPE_IGNITION)
+	e8:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e8:SetRange(LOCATION_MZONE)
+	e8:SetCountLimit(1,id)
+	e8:SetTarget(s.sptarget)
+	e8:SetOperation(s.spoperation2)
+	c:RegisterEffect(e8)
 end
 
 function s.spcondition(e,tp,eg,ep,ev,re,r,rp)
@@ -84,7 +96,7 @@ function s.spcondition(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x67C) and c:IsType(TYPE_MONSTER) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x67C) and c:IsType(TYPE_MONSTER) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsLevelBelow(4)
 end
 
 function s.sptarget(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -105,11 +117,22 @@ function s.spoperation(e,tp,eg,ep,ev,re,r,rp)
 		if a:CanAttack() and not a:IsImmuneToEffect(e) and ag:IsContains(tc) then
 			Duel.BreakEffect()
 			Duel.ChangeAttackTarget(tc)
+			local e1=Effect.CreateEffect(e:GetHandler())
+		    e1:SetType(EFFECT_TYPE_SINGLE)
+		    e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+		    e1:SetValue(0)
+		    e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		    a:RegisterEffect(e1)
 	   end
    end
 end
 
-
+function s.spoperation2(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) then 
+	Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+	end
+end
 --------------------------------------------------------------------------------------------------------
 
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)

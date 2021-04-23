@@ -57,10 +57,15 @@ function s.initial_effect(c)
 	e5:SetType(EFFECT_TYPE_FIELD)
 	e5:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
 	e5:SetRange(LOCATION_MZONE)
-	e5:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	e5:SetTargetRange(LOCATION_MZONE,0)
 	e5:SetTarget(s.indtg)
 	e5:SetValue(1)
 	c:RegisterEffect(e5)
+	
+	--local e6=e3:Clone()
+	--e6:SetDescription(aux.Stringid(id,3))
+	--e6:SetCost(s.thcost2)
+	--c:RegisterEffect(e6)
 end
 
 function s.matfilter(c,lc,sumtype,tp)
@@ -103,6 +108,18 @@ function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.SelectReleaseGroupCost(tp,s.thfilter2,1,1,false,nil,nil,ft,tp)
 	Duel.Release(g,REASON_COST)
 end
+
+--function s.cfilter(c,tp,cg)
+	--return cg:IsContains(c) and c:IsType(TYPE_MONSTER) --and Duel.IsExistingTarget(Card.IsFaceup,tp,0,0,LOCATION_MZONE,c)
+--end
+
+--function s.thcost2(e,tp,eg,ep,ev,re,r,rp,chk)
+	--local c=e:GetHandler()
+	--local cg=c:GetLinkedGroup()
+	--if chk==0 then return Duel.CheckReleaseGroupCost(1-tp,s.cfilter,1,false,nil,nil,1-tp,cg) end
+	--local g=Duel.SelectReleaseGroupCost(1-tp,s.cfilter,1,1,false,nil,nil,1-tp,cg)
+	--Duel.Release(g,REASON_COST)
+--end
 
 function s.thfilter3(c)
 	return c:IsSetCard(0x67C) and c:IsType(TYPE_MONSTER+TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
