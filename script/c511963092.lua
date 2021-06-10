@@ -34,6 +34,17 @@ function s.initial_effect(c)
 	e3:SetTarget(s.rmtg)
 	e3:SetOperation(s.rmop)
 	c:RegisterEffect(e3)
+	--tohand
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,0))
+	e4:SetCategory(CATEGORY_TOHAND)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e4:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP)
+	e4:SetCode(EVENT_TO_GRAVE)
+	e4:SetCondition(s.thcon)
+	e4:SetTarget(s.thtg)
+	e4:SetOperation(s.thop)
+	c:RegisterEffect(e4)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return true end
@@ -72,4 +83,22 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 		end
 		Duel.Remove(tg,POS_FACEUP,REASON_EFFECT)
 	end
+end
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+	return (e:GetHandler():GetPreviousLocation()&LOCATION_ONFIELD)>0
+end
+function s.filter(c)
+	return c:IsFaceup() and c:IsSetCard(0x196) and c:IsType(TYPE_TRAP+TYPE_SPELL) and c:IsAbleToHand()
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:GetControler()==tp and chkc:IsLocation(LOCATION_REMOVED) and s.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_REMOVED,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_REMOVED,0,1,2,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	local sg=g:Filter(Card.IsRelateToEffect,nil,e)
+	Duel.SendtoHand(sg,nil,REASON_EFFECT)
 end
