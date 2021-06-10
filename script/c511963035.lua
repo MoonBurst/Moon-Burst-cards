@@ -7,7 +7,6 @@ function s.initial_effect(c)
 	--Xyz summon procedure
 	Xyz.AddProcedure(c,nil,5,2)
 	c:SetUniqueOnField(1,0,id) --You can only control 1 face-up "Night Girl - Reaper"
-	
 	--Special Summon "Night Girl" When Xyz Summoned
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -17,17 +16,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-	
-	--Cannot be targeted by card effects
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_SINGLE)
-	e2:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetValue(1)
-	c:RegisterEffect(e2)
-	
-	--Cannot be targeted for attack
+		--Cannot be targeted for attack
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE)
 	e3:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
@@ -36,20 +25,6 @@ function s.initial_effect(c)
 	e3:SetCondition(s.con)
 	e3:SetValue(aux.imval1)
 	c:RegisterEffect(e3)
-	
-	--This card can attack directly
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetCode(EFFECT_DIRECT_ATTACK)
-	c:RegisterEffect(e4)
-	--But Half the damage taken
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_SINGLE)
-	e5:SetCode(EFFECT_CHANGE_BATTLE_DAMAGE)
-	e5:SetCondition(s.rdcon)
-	e5:SetValue(aux.ChangeBattleDamage(1,HALF_DAMAGE))
-	c:RegisterEffect(e5)
-	
 	--Negate a monster's effect and make their attack 0
 	local e6=Effect.CreateEffect(c)
 	e6:SetDescription(aux.Stringid(id,0))
@@ -65,26 +40,11 @@ function s.initial_effect(c)
 	e6:SetTarget(s.negtg)
 	e6:SetOperation(s.negop)
 	c:RegisterEffect(e6,false,REGISTER_FLAG_DETACH_XMAT)
-	
-	--Your Opponent cannot activate any effects when this card attacks
-	local e7=Effect.CreateEffect(c)
-	e7:SetType(EFFECT_TYPE_FIELD)
-	e7:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e7:SetCode(EFFECT_CANNOT_ACTIVATE)
-	e7:SetRange(LOCATION_MZONE)
-	e7:SetTargetRange(0,1)
-	e7:SetValue(s.aclimit)
-	e7:SetCondition(s.actcon)
-	c:RegisterEffect(e7)
-	
 end
-
 s.listed_series={0x196}
-
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetSummonType()==SUMMON_TYPE_XYZ
 end
-
 function s.spfilter(c,e,tp)
 	return c:IsCode(511963018) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
 end
@@ -102,9 +62,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(g,0,tp,tp,true,false,POS_FACEUP)
 	end
 end
-
----------------------------------------------------------------------------------------------------------------------------
-
 function s.filter(c)
 	return c:IsFaceup(0x196) and c:IsLocation(LOCATION_MZONE) and not c:IsCode(id) 
 end
@@ -112,17 +69,6 @@ function s.con(e)
 	local c=e:GetHandler()
 	return Duel.IsExistingMatchingCard(s.filter,c:GetControler(),LOCATION_MZONE,0,1,c)
 end
-
--------------------------------------------------------------------------------------------------------------------------
-
-function s.rdcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local tp=e:GetHandlerPlayer()
-	return Duel.GetAttackTarget()==nil and c:GetEffectCount(EFFECT_DIRECT_ATTACK)<2 and Duel.GetFieldGroupCount(tp,0,LOCATION_MZONE)>0
-end
-
--------------------------------------------------------------------------------------------------------------------------
-
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetCurrentPhase()~=PHASE_DAMAGE or not Duel.IsDamageCalculated()
 end
@@ -165,14 +111,3 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 		tc:RegisterEffect(e3)
 	end
 end
-
-----------------------------------------------------------------------------------------------------------------------
-
-function s.aclimit(e,re,tp)
-	return (re:IsHasType(EFFECT_TYPE_ACTIVATE) or re:IsActiveType(TYPE_MONSTER))  
-end
-
-function s.actcon(e)
-	return Duel.GetAttacker()==e:GetHandler()
-end
-

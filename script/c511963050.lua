@@ -24,17 +24,6 @@ function s.initial_effect(c)
 	e2:SetTarget(s.target)
 	e2:SetOperation(s.operation)
 	c:RegisterEffect(e2)
-	--draw
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(61344030,1))
-	e3:SetCategory(CATEGORY_DRAW)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_DAMAGE_STEP)
-	e3:SetCode(EVENT_LEAVE_FIELD)
-	e3:SetCondition(s.drcon)
-	e3:SetTarget(s.drtg)
-	e3:SetOperation(s.drop)
-	c:RegisterEffect(e3)
 end
 s.listed_series={0x196}
 function s.condition1(e,tp,eg,ep,ev,re,r,rp)
@@ -66,19 +55,4 @@ end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetTargetCards(e)
 	Duel.Destroy(g,REASON_EFFECT)
-end
-function s.drcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsReason(REASON_DESTROY)
-		and c:IsPreviousControler(tp) and c:GetReasonPlayer()==1-tp
-end
-function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.SetTargetPlayer(tp)
-	Duel.SetTargetParam(2)
-	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,2)
-end
-function s.drop(e,tp,eg,ep,ev,re,r,rp)
-	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-	Duel.Draw(p,d,REASON_EFFECT)
 end

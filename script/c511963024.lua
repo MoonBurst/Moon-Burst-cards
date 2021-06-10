@@ -27,11 +27,11 @@ local e1=Effect.CreateEffect(c)
 	local e6=e4:Clone()
 	e6:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e6)
-	--special summon
+	--special summon rule
 	local e7=Effect.CreateEffect(c)
 	e7:SetType(EFFECT_TYPE_FIELD)
 	e7:SetCode(EFFECT_SPSUMMON_PROC)
-	e7:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e7:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e7:SetRange(LOCATION_HAND)
 	e7:SetCondition(s.sprcon)
 	e7:SetTarget(s.sprtg)
@@ -48,7 +48,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,#g,0,0)
 end
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x196) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x196) and c:IsLevelBelow(7) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_MZONE,0,nil)
@@ -89,10 +89,10 @@ function s.indop(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.sprcon(e,c)
 	if c==nil then return true end
-	return Duel.CheckReleaseGroup(c:GetControler(),Card.IsAttackAbove,2,false,2,true,c,c:GetControler(),nil,false,nil,2000)
+	return Duel.CheckReleaseGroup(c:GetControler(),Card.IsRace,2,false,2,true,c,c:GetControler(),nil,false,nil,RACE_PSYCHIC)
 end
 function s.sprtg(e,tp,eg,ep,ev,re,r,rp,c)
-	local g=Duel.SelectReleaseGroup(tp,Card.IsAttackAbove,2,2,false,true,true,c,nil,nil,false,nil,2000)
+	local g=Duel.SelectReleaseGroup(tp,Card.IsRace,2,2,false,true,true,c,nil,nil,false,nil,RACE_PSYCHIC)
 	if g then
 		g:KeepAlive()
 		e:SetLabelObject(g)
@@ -106,6 +106,3 @@ function s.sprop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Release(g,REASON_COST)
 	g:DeleteGroup()
 end
-
-
-

@@ -1,52 +1,63 @@
---Night Style
+--Night Mirage
 local s,id=GetID()
 function s.initial_effect(c)
-    --Activate
+    --atk
     local e1=Effect.CreateEffect(c)
-    e1:SetCategory(CATEGORY_DAMAGE)
+    e1:SetCategory(CATEGORY_ATKCHANGE)
     e1:SetType(EFFECT_TYPE_ACTIVATE)
     e1:SetCode(EVENT_BE_BATTLE_TARGET)
-    e1:SetCondition(s.condition)
     e1:SetTarget(s.target)
-    e1:SetOperation(s.activate)
+    e1:SetOperation(s.operation)
     c:RegisterEffect(e1)
-    --cannot direct attack
-    local e2=Effect.CreateEffect(c)
-    e2:SetDescription(aux.Stringid(id,1))
-    e2:SetType(EFFECT_TYPE_QUICK_O)
-    e2:SetCode(EVENT_FREE_CHAIN)
-    e2:SetHintTiming(0,TIMING_ATTACK)
-    e2:SetRange(LOCATION_GRAVE)
-    e2:SetCondition(s.grcondition)
-    e2:SetCost(aux.bfgcost)
-    e2:SetOperation(s.groperation)
-    c:RegisterEffect(e2)
-end
-s.listed_series={0x196}
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
-    return not Duel.GetAttacker():IsControler(tp)
-        and eg:GetFirst():IsControler(tp) and eg:GetFirst():IsFaceup()
+    --effect damage
+	local e2=Effect.CreateEffect(c)
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCost(s.spcost)
+	e2:SetTarget(s.sptg)
+	e2:SetOperation(s.spop)
+	c:RegisterEffect(e2)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return true end
-    Duel.SetTargetPlayer(1-tp)
-    Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,eg:GetFirst():GetAttack())
+    local at=eg:GetFirst()
+    local a=Duel.GetAttacker()
+    if chk==0 then return at:IsControler(tp) and at:IsOnField() and at:IsFaceup() and a:IsOnField() end
+    at:CreateEffectRelation(e)
+    a:CreateEffectRelation(e)
 end
-function s.activate(e,tp,eg,ep,ev,re,r,rp)
-    local tc=eg:GetFirst()
-    if Duel.NegateAttack() and tc:IsRelateToBattle() then
-        local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
-        Duel.Damage(p,tc:GetAttack(),REASON_EFFECT)
-    end
-end
-function s.grcondition(e,tp,eg,ep,ev,re,r,rp)
-    return Duel.GetTurnPlayer()~=tp and (Duel.IsAbleToEnterBP() or (Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE))
-end
-function s.groperation(e,tp,eg,ep,ev,re,r,rp)
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local at=eg:GetFirst()
+    local a=Duel.GetAttacker()
+    if not a:IsRelateToEffect(e) or not at:IsRelateToEffect(e) or a:IsFacedown() or at:IsFacedown() then return end
     local e1=Effect.CreateEffect(e:GetHandler())
-    e1:SetType(EFFECT_TYPE_FIELD)
-    e1:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)
-    e1:SetTargetRange(0,LOCATION_MZONE)
-    e1:SetReset(RESET_PHASE+PHASE_END)
-    Duel.RegisterEffect(e1,tp)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+    e1:SetValue(a:GetAttack())
+    e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+    at:RegisterEffect(e1)
+end
+function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
+	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_EFFECT)
+end
+function s.filter(c,e,tp,tid)
+	return (c:GetReason()&0x41)==0x41 and c:IsSetCard(0x196) and c:GetTurnID()==tid and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local tid=Duel.GetTurnCount()
+	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and s.filter(chkc,e,tp,tid) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingTarget(s.filter,tp,LOCATION_GRAVE,0,1,nil,e,tp,tid) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp,tid)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
+end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) then
+		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+	end
 end
