@@ -17,16 +17,17 @@ function s.initial_effect(c)
 	e2:SetTarget(s.atktg)
 	e2:SetOperation(s.atkop)
 	c:RegisterEffect(e2)
-	--banish
-	local e3=Effect.CreateEffect(c)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetType(EFFECT_TYPE_QUICK_O)
-	e3:SetRange(LOCATION_GRAVE)
-	e3:SetCode(EVENT_FREE_CHAIN)
-	e3:SetCost(aux.bfgcost)
-	e3:SetTarget(s.target)
-	e3:SetOperation(s.operationb)
-	c:RegisterEffect(e3)
+    --cannot direct attack
+    local e3=Effect.CreateEffect(c)
+    e3:SetDescription(aux.Stringid(id,1))
+    e3:SetType(EFFECT_TYPE_QUICK_O)
+    e3:SetCode(EVENT_FREE_CHAIN)
+    e3:SetHintTiming(0,TIMING_ATTACK)
+    e3:SetRange(LOCATION_GRAVE)
+    e3:SetCondition(s.grcondition)
+    e3:SetCost(aux.bfgcost)
+    e3:SetOperation(s.groperation)
+    c:RegisterEffect(e3)
 end
 s.listed_series={0x196}
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
@@ -45,23 +46,14 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.NegateAttack()
 	end
 end
-function s.filter(c,tp)
-	return c:IsSetCard(0x196) and c:IsFaceup() and c:IsControler(tp)
+function s.grcondition(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.GetTurnPlayer()~=tp and (Duel.IsAbleToEnterBP() or (Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE))
 end
-function s.target(e,tp,eg,ev,ep,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.filter(chkc,tp) end
-	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,0,1,nil,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil,tp)
-end
-function s.operationb(e,tp,eg,ev,ep,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-		e1:SetValue(1)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		tc:RegisterEffect(e1)
-	end
+function s.groperation(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)
+    e1:SetTargetRange(0,LOCATION_MZONE)
+    e1:SetReset(RESET_PHASE+PHASE_END)
+    Duel.RegisterEffect(e1,tp)
 end

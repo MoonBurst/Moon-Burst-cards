@@ -1,70 +1,123 @@
---Night Agent
+--Night Explorer
 local s,id=GetID()
 function s.initial_effect(c)
-    --damage
+--special summon
     local e1=Effect.CreateEffect(c)
-    e1:SetDescription(aux.Stringid(62107612,0))
-    e1:SetCategory(CATEGORY_DAMAGE)
-    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-    e1:SetCode(EVENT_REMOVE)
-    e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_SPSUMMON_PROC)
+    e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
     e1:SetRange(LOCATION_HAND)
-    e1:SetCondition(s.condition)
-    e1:SetCost(s.cost)
-    e1:SetTarget(s.target)
-    e1:SetOperation(s.operation)
+    e1:SetCondition(s.spcon)
     c:RegisterEffect(e1)
-    --material
-    local e2=Effect.CreateEffect(c)
-    e2:SetDescription(aux.Stringid(id,0))
-    e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-    e2:SetType(EFFECT_TYPE_IGNITION)
-    e2:SetRange(LOCATION_GRAVE)
-    e2:SetCountLimit(1,id,EFFECT_COUNT_CODE_DUEL)
-    e2:SetTarget(s.thtg)
-    e2:SetOperation(s.thop)
-    c:RegisterEffect(e2)
+    --token
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(95100147,0))
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TOKEN)
+	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e2:SetTarget(s.tktg)
+	e2:SetOperation(s.tkop)
+	c:RegisterEffect(e2)
+	--synlimit
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_SINGLE)
+	e5:SetCode(EFFECT_CANNOT_BE_SYNCHRO_MATERIAL)
+	e5:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e5:SetValue(s.synlimit)
+	c:RegisterEffect(e5)
+	--graveyard synchro
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetCode(id)
+	c:RegisterEffect(e4)
+	aux.GlobalCheck(s,function()
+		local ge2=Effect.CreateEffect(c)
+		ge2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		ge2:SetCode(EVENT_ADJUST)
+		ge2:SetOperation(s.synchk)
+		Duel.RegisterEffect(ge2,0)
+	end)
 end
-s.listed_series={0x196}
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
-    return r&REASON_EFFECT~=0 and re
+function s.spcon(e,c)
+    if c==nil then return true end
+    return Duel.GetFieldGroupCount(c:GetControler(),LOCATION_MZONE,0)==0
+        and Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0
 end
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return e:GetHandler():IsAbleToGraveAsCost() end
-    Duel.SendtoGrave(e:GetHandler(),REASON_COST)
+function s.tktg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>1 and not Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT) 
+		and Duel.IsPlayerCanSpecialSummonMonster(tp,511963100,0,TYPES_TOKEN,0,0,1,RACE_PSYCHIC,ATTRIBUTE_DARK) end
+	Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,2,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,2,tp,0)
 end
-function s.filter(c)
-    return c:IsFaceup() and c:GetAttack()>0
+function s.tkop(e,tp,eg,ep,ev,re,r,rp)
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if ft>1 and Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT) then ft=1 end
+	if ft<2 then return end
+	if not Duel.IsPlayerCanSpecialSummonMonster(tp,511963100,0,TYPES_TOKEN,0,0,1,RACE_PSYCHIC,ATTRIBUTE_DARK) then return end
+	for i=1,2 do
+		local token=Duel.CreateToken(tp,511963100)
+		Duel.SpecialSummonStep(token,0,tp,tp,false,false,POS_FACEUP_ATTACK)
+	end
+	Duel.SpecialSummonComplete()
 end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-    if chkc then return chkc:IsLocation(LOCATION_REMOVED) and s.filter(chkc) end
-    if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_REMOVED,LOCATION_REMOVED,2,nil) end
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-    local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_REMOVED,LOCATION_REMOVED,2,2,nil)
-    Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,g:GetSum(Card.GetAttack))
+function s.synlimit(e,c)
+	if not c then return false end
+	return not c:IsLocation(LOCATION_GRAVE)
 end
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
-    local g=Duel.GetTargetCards(e)
-    if Duel.GetLocationCount(tp,LOCATION_MZONE)<2 then return end
-    if #g==2 then
-        local sum=g:GetSum(Card.GetAttack)
-        Duel.Damage(1-tp,sum,REASON_EFFECT)
-    end
+function s.recon(e)
+	return e:GetHandler():IsFaceup()
 end
-function s.spfilter(c)
-    return c:IsFaceup() and c:IsSetCard(0x196) and c:IsType(TYPE_XYZ)
+function s.regfilter(c)
+	return c.synchro_type and c:IsType(TYPE_SYNCHRO) and c:GetFlagEffect(id+1)==0
 end
-function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-    if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.spfilter(chkc) end
-    if chk==0 then return Duel.IsExistingTarget(s.spfilter,tp,LOCATION_MZONE,0,1,nil) end
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-    Duel.SelectTarget(tp,s.spfilter,tp,LOCATION_MZONE,0,1,1,nil)
-    Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,e:GetHandler(),1,0,0)
+function s.synchk(e,tp,eg,ep,ev,re,r,rp)
+	local sg=Duel.GetMatchingGroup(s.regfilter,tp,0xff,0xff,nil)
+	local tc=sg:GetFirst()
+	while tc do
+		tc:RegisterFlagEffect(id+1,0,0,0)
+		local tpe=tc.synchro_type
+		local t=tc.synchro_parameters
+		if tc.synchro_type==1 then
+			local f1,min1,max1,f2,min2,max2,sub1,sub2,req1,req2,reqm=table.unpack(t)
+			local e1=Effect.CreateEffect(tc)
+			e1:SetType(EFFECT_TYPE_FIELD)
+			e1:SetCode(EFFECT_SPSUMMON_PROC)
+			e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+			e1:SetRange(LOCATION_GRAVE)
+			e1:SetCondition(Synchro.Condition(f1,min1,max1,f2,min2,max2,sub1,sub2,req1,req2,s.reqm(reqm)))
+			e1:SetTarget(Synchro.Target(f1,min1,max1,f2,min2,max2,sub1,sub2,req1,req2,s.reqm(reqm)))
+			e1:SetOperation(Synchro.Operation)
+			e1:SetValue(SUMMON_TYPE_SYNCHRO)
+			tc:RegisterEffect(e1)
+		elseif tc.synchro_type==2 then
+			local e1=Effect.CreateEffect(tc)
+			e1:SetType(EFFECT_TYPE_FIELD)
+			e1:SetCode(EFFECT_SPSUMMON_PROC)
+			e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+			e1:SetRange(LOCATION_GRAVE)
+			e1:SetCondition(Synchro.Condition(table.unpack(t),s.reqm()))
+			e1:SetTarget(Synchro.Target(table.unpack(t),s.reqm()))
+			e1:SetOperation(Synchro.Operation)
+			e1:SetValue(SUMMON_TYPE_SYNCHRO)
+			tc:RegisterEffect(e1)
+		elseif tc.synchro_type==3 then
+			local e1=Effect.CreateEffect(tc)
+			e1:SetType(EFFECT_TYPE_FIELD)
+			e1:SetCode(EFFECT_SPSUMMON_PROC)
+			e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+			e1:SetRange(LOCATION_GRAVE)
+			e1:SetCondition(Synchro.Condition(table.unpack(t),s.reqm()))
+			e1:SetTarget(Synchro.Target(table.unpack(t),s.reqm()))
+			e1:SetOperation(Synchro.Operation)
+			e1:SetValue(SUMMON_TYPE_SYNCHRO)
+			tc:RegisterEffect(e1)
+		end
+		tc=sg:GetNext()
+	end
 end
-function s.thop(e,tp,eg,ep,ev,re,r,rp)
-    local c=e:GetHandler()
-    local tc=Duel.GetFirstTarget()
-    if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
-        Duel.Overlay(tc,Group.FromCards(c))
-    end
+function s.reqm(reqm)
+	return function(g,sc,tp)
+				return g:IsExists(Card.IsHasEffect,1,nil,id) and (not reqm or reqm(g,sc,tp))
+			end
 end

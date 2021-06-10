@@ -1,4 +1,4 @@
---Night Detective
+--Night Invoker
 --by King Of Justice
 local s,id=GetID()
 function s.initial_effect(c)
@@ -27,15 +27,6 @@ function s.initial_effect(c)
 	local e4=e3:Clone()
 	e4:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
 	c:RegisterEffect(e4)
-	
-	--Order the top 3 cards of your opponent's deck
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_IGNITION)
-	e5:SetRange(LOCATION_GRAVE)
-	e5:SetCost(aux.bfgcost)
-	e5:SetCondition(s.condition)
-	e5:SetOperation(s.operation)
-	c:RegisterEffect(e5)
 end
 
 s.listed_series={0x196}
@@ -73,17 +64,4 @@ function s.sumop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_PHASE+PHASE_END)
 	Duel.RegisterEffect(e1,tp)
 	Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
-end
-
-------------------------------------------------------------------------------------------------------------
-
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFieldGroupCount(1-tp,LOCATION_DECK,0) --(tp,LOCATION_DECK,0)>=3  
-end
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetFieldGroupCount(1-tp,0,LOCATION_DECK)<3 then return end
-	Duel.SortDecktop(tp,1-tp,3)  --(tp,tp,3)
-	if Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))==1 then
-		Duel.MoveToDeckBottom(3,1-tp)  --(3,tp)
-	end
 end
