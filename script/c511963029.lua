@@ -1,4 +1,4 @@
---Night Gardna
+--Night Ice Witch
 local s,id=GetID()
 function s.initial_effect(c)
 	--cannot select battle target
