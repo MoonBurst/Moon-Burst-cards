@@ -1,4 +1,4 @@
---Night Ice Witch
+--Night Gardna
 local s,id=GetID()
 function s.initial_effect(c)
 	-- spsummon proc
