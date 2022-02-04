@@ -11,28 +11,18 @@ function s.initial_effect(c)
     e1:SetTarget(s.sptg)
     e1:SetOperation(s.spop)
     c:RegisterEffect(e1)
-    --Destroy 1 other card on the field
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,0))
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetCountLimit(1)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetTarget(s.rdtg)
-	e2:SetOperation(s.rdop)
-	c:RegisterEffect(e2)
-	--destroy
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,1))
-	e3:SetCategory(CATEGORY_DESTROY)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetCode(EVENT_BATTLE_DESTROYED)
-	e3:SetCondition(s.condition)
-	e3:SetTarget(s.target)
-	e3:SetOperation(s.operation)
-	c:RegisterEffect(e3)
-end
+    --destroy
+    local e2=Effect.CreateEffect(c)
+    e2:SetDescription(aux.Stringid(id,0))
+    e2:SetCategory(CATEGORY_DESTROY)
+    e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+    e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
+    e2:SetCode(EVENT_TO_GRAVE)
+    e2:SetCondition(s.descon)
+    e2:SetTarget(s.destg)
+    e2:SetOperation(s.desop)
+    c:RegisterEffect(e2)
+end 
 function s.spcon(e,c)
     if c==nil then return true end
     return Duel.CheckReleaseGroup(c:GetControler(),Card.IsRace,1,false,1,true,c,c:GetControler(),nil,false,nil,RACE_PSYCHIC)
@@ -60,33 +50,19 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
     e:GetHandler():RegisterEffect(e1)
     g:DeleteGroup()
 end
-function s.rdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local c=e:GetHandler()
-	if chkc then return chkc:IsOnField() and chkc~=c end
-	if chk==0 then return  Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,c) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,c)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,LOCATION_ONFIELD)
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    return e:GetHandler():IsReason(REASON_DESTROY)
 end
-function s.rdop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		Duel.Destroy(tc,REASON_EFFECT)
-	end
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    if chkc then return chkc:IsOnField() end
+    if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+    local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+    Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsLocation(LOCATION_GRAVE) and e:GetHandler():IsReason(REASON_BATTLE)
-end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
-	if chk==0 then return true end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,#g,0,0)
-end
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
-		Duel.Destroy(tc,REASON_EFFECT)
-	end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) then
+        Duel.Destroy(tc,REASON_EFFECT)
+    end
 end

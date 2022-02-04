@@ -13,16 +13,25 @@ function s.initial_effect(c)
     e1:SetTarget(s.sptg)
     e1:SetOperation(s.spop)
     c:RegisterEffect(e1)
-	--Activate
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_BE_BATTLE_TARGET)
-	e2:SetRange(LOCATION_GRAVE)
-	e2:SetCondition(s.condition)
-	e2:SetCost(s.cost)
-	e2:SetTarget(s.target)
-	e2:SetOperation(s.operation)
-	c:RegisterEffect(e2)
+    --Damage
+    local e2=Effect.CreateEffect(c)
+    e2:SetCategory(CATEGORY_DAMAGE)
+    e2:SetType(EFFECT_TYPE_QUICK_O)
+    e2:SetCode(EVENT_FREE_CHAIN)
+    e2:SetRange(LOCATION_GRAVE)
+    e2:SetCost(aux.bfgcost)
+    e2:SetCondition(s.condition)
+    e2:SetTarget(s.target)
+    e2:SetOperation(s.operation)
+    c:RegisterEffect(e2)
+    aux.GlobalCheck(s,function()
+        local ge2=Effect.CreateEffect(c)
+        ge2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+        ge2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+        ge2:SetCode(EVENT_BATTLE_DAMAGE)
+        ge2:SetOperation(s.gop)
+        Duel.RegisterEffect(ge2,0)
+    end)
 end
 s.listed_series={0x196}
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
@@ -41,27 +50,36 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
         c:CompleteProcedure()
     end
 end
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	local tc=eg:GetFirst()
-	return tc:IsControler(tp) and tc:IsPosition(POS_FACEUP_ATTACK)
+function s.gop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.RegisterFlagEffect(ep,id,RESET_PHASE+PHASE_END,0,1)
 end
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
-	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE and Duel.GetTurnPlayer()==tp
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_POSITION,Duel.GetAttackTarget(),1,0,0)
+    if chk==0 then return Duel.GetFlagEffect(tp,id)~=0 or Duel.GetFlagEffect(1-tp,id)~=0 end
+    local dep=nil
+    if Duel.GetFlagEffect(tp,id)~=0 and Duel.GetFlagEffect(1-tp,id)~=0 then
+        dep=PLAYER_ALL
+    elseif Duel.GetFlagEffect(tp,id)~=0 then
+        dep=tp
+    else
+        dep=1-tp
+    end
+    Duel.SetTargetPlayer(dep)
+    Duel.SetTargetParam(1000)
+    Duel.SetOperationInfo(0,CATEGORY_DAMAGE,0,0,dep,1000)
 end
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local at=Duel.GetAttackTarget()
-	Duel.ChangePosition(at,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,0,0)
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-	e1:SetValue(1)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	at:RegisterEffect(e1)
+function s.operation(e,tp,eg,ev,ep,re,r,rp)
+    local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
+    if p~=PLAYER_ALL then
+        Duel.Damage(p,d,REASON_EFFECT)
+    else
+        Duel.Damage(1-tp,d,REASON_EFFECT,true)
+        Duel.Damage(tp,d,REASON_EFFECT,true)
+        Duel.RDComplete()
+    end
 end
+
 
 
