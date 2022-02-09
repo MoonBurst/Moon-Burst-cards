@@ -38,6 +38,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.sumop)
 	c:RegisterEffect(e2)
 end
+s.material_trap=511963052
 function s.aclimit(e,re,tp)
     if not re or not re:IsHasType(EFFECT_TYPE_ACTIVATE) or not re:IsActiveType(TYPE_SPELL) then return false end
     local c=re:GetHandler()
