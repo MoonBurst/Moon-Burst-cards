@@ -207,4 +207,15 @@ function Auxiliary.GLGetLinkedZoneManually(c,f)
 	return zone
 end
 
+--CXPHER SHENANIGANS
+function Auxiliary.IsTLAttribute(c,...)
+	if not c.tl_attribute then return false end
+	local atts={...}
+	for _,att in ipairs(atts) do
+		for _,aatt in ipairs(c.tl_attribute) do
+			if att==aatt then return true end
+		end
+	end
+	return false
+end
 Duel.LoadScript("proc_runic.lua")

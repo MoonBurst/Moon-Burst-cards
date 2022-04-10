@@ -54,6 +54,8 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 
+s.tl_attribute={ATTRIBUTE_FIRE}
+
 --Summon Filters
 function s.matfilter(c)
 	return (c:IsSetCard(0xc54) and c:IsAttribute(ATTRIBUTE_FIRE)) or thaux.sfilter(c)
