@@ -66,9 +66,9 @@ function s.dscon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.dscost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,0xc54) end
+	if chk==0 then return Duel.IsExistingMatchingCard(aux.FilterFaceupFunction(Card.IsSetCard,0xc54),tp,LOCATION_MZONE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,Card.IsSetCard(),tp,LOCATION_MZONE+LOCATION_SZONE,0,1,1,0xc54)
+	local g=Duel.SelectMatchingCard(tp,aux.FilterFaceupFunction(Card.IsSetCard,0xc54),tp,LOCATION_MZONE+LOCATION_SZONE,0,1,1,nil)
     Duel.SendtoGrave(g,REASON_COST)
 end
 	
