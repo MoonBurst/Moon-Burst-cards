@@ -17,10 +17,10 @@ function s.initial_effect(c)
 	e2:SetValue(1)
 	e2:SetCondition(s.indcon)
 	c:RegisterEffect(e2)
-	local e2=e2:Clone()
-	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
-	c:RegisterEffect(e2)
+	local e3=e2:Clone()
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+	c:RegisterEffect(e3)
 	--ATK+ Linked "Thaumic" Monsters (4)
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_FIELD)
@@ -64,6 +64,10 @@ function s.tgtg(e,c)
 end
 
 --Change Target Position + No Material (5)
+function s.posfilter(c)
+	c:IsPosition(POS_FACEDOWN_DEFENSE) or c:IsPosition(POS_ATTACK)
+end
+
 function s.postg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) and s.posfilter(chkc) end
 	if chk==0 then return Duel.IsExistingTarget(s.posfilter,tp,0,LOCATION_MZONE,1,nil) end
