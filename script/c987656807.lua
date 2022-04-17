@@ -67,19 +67,20 @@ end
 
 function s.spctg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	local zone=c:GetColumnZone(LOCATION_MZONE,c:GetControler())&0x1f
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_HAND,0,1,nil,e,tp,zone) end
+	if chk==0 then
+		local zone=(1<<c:GetSequence())&0x1f
+		return zone~=0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_HAND,0,1,nil,e,tp,zone)
+	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND)
 end
 
 function s.spcop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsOnField() then return end
-	local zone=c:GetColumnZone(LOCATION_MZONE,c:GetControler())&0x1f
+	local zone=(1<<c:GetSequence())&0x1f
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp,zone)
-	if #g>0 then
+	if #g>0 and zone~=0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP,zone)
 	end
 end
