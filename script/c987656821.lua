@@ -65,7 +65,7 @@ end
 
 --Change Target Position + No Material (5)
 function s.posfilter(c)
-	c:IsPosition(POS_FACEDOWN_DEFENSE) or c:IsPosition(POS_ATTACK)
+	return c:IsPosition(POS_FACEDOWN_DEFENSE) or c:IsPosition(POS_ATTACK)
 end
 
 function s.postg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
